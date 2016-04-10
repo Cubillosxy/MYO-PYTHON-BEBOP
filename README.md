@@ -26,7 +26,7 @@ https://github.com/robotika/katarina/   library for control of bebop
 
 https://github.com/NiklasRosenstein/myo-python	 library for control of Myo
 
-Actually only you can fly, the video stream is not supported
+Actually only you can fly, the video stream is not supported.
 Warning! this project uses libraries who still is on developing , then you can experimenter different problems
 I recommend restart the program for any problem, if the issue continue reconnect all the devices.
 
@@ -44,7 +44,7 @@ Known bugs:
 Thanks to:
 * NiklasRosenstein  for myo-python library: [myo-python](https://github.com/NiklasRosenstein/myo-python)
 * Group of robotika.cz for katarina		  : [katarina](https://github.com/robotika/katarina)
-* Aldo Contreras González for contribution 
+* Aldo Contreras González for contribution : aldocontrego@gmail.com
 
 
 Questions?
