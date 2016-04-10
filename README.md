@@ -40,11 +40,8 @@ Known bugs:
 Thanks to:
 * NiklasRosenstein  for myo-python library: [myo-python](https://github.com/NiklasRosenstein/myo-python)
 * Group of robotika.cz for katarina		  : [katarina](https://github.com/robotika/katarina)
-<<<<<<< HEAD
 * Aldo Contreras González for contribution: aldocontrego@gmail.com
-=======
-* Aldo Contreras González for contribution : aldocontrego@gmail.com
->>>>>>> origin/master
+
 
 
 Questions?
