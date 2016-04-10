@@ -30,11 +30,10 @@ from myo_Input import *
 active_myo=False 
 active_drone=False
 
-
+#
 def mens():
 	tkMessageBox.showinfo(title="Caution",message="Please , make sure that you're connected to \n  Red  wifi (Drone) \n  Bluetooth  connector MYO")
 	
-
 # Scale speed
 def v_ver_speed(val):
 	v_min=5.0
@@ -75,9 +74,6 @@ def connect_myo():
 		active_myo=False
 		tkMessageBox.showinfo(title="Error",message="Myo Hub could not be created. Make sure Myo Connect is running.")
 
-
-
-
 #Init Drone
 def connect_drone():
 	global active_drone
@@ -107,10 +103,7 @@ def  proccesInput(app,drone):
 	myoRoll,myoPitch,myoYaw=CalculateRelativeEulerAngles (app.currentOrientation,app.referenceOrientation)
 	myoRoll, myoPitch, myoYaw=RerangeEulerAngles (myoRoll, myoPitch, myoYaw)
 
-	# currentRoll,currentPitch,currentYaw = CalculateAnglesm (app.currentOrientation)
-	# referenceRoll, referencePitch, referenceYaw=CalculateAnglesm (app.referenceOrientation)
-
-	# #Condittion for fly
+	# #Condition for fly
 	if (takeoff):
 		if (app.pose==libmyo.Pose.fist ):
 			droneRoll = float(-myoYaw)
@@ -130,9 +123,6 @@ def batterylevel():
 	level= app_drone.drone.battery
 
 
-
-
-
 def main():
 
 	"""
@@ -141,7 +131,6 @@ def main():
 
 	global app_drone
 	app_drone=Control()
-
 
 	##GUI
 	global raiz
@@ -163,12 +152,10 @@ def main():
 
 	f1.place(x=450,y=5)
 
-	raiz.title("MYO-DRONE BETA")
+	raiz.title("MYO+PYTHON+BEBOP")
 	raiz.geometry("680x550+300+70")
 
 	raiz.configure(background='white')
-
-
 
 	im_drone3 =PhotoImage(file="Bib_ima/bebop_420x145.gif")
 	im_drone = Label(raiz, image=im_drone3, anchor="center",padx=2)
@@ -188,7 +175,6 @@ def main():
 	zq3=PhotoImage(file='Bib_ima/cfp7_81x81.gif')
 	ima_aba=PhotoImage(file='Bib_ima/cfp8_63x81a.gif')
 	zq4=PhotoImage(file='Bib_ima/cfp9_81x81.gif')
-
 
 
 	### Joy control primary
