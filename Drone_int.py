@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
 # Copyright (c) 2016  Edwin Cubillos
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -32,7 +31,7 @@ import signal
 import six
 import tkMessageBox
 from Tkinter import *
-
+import webbrowser
 from core.bebop import *
 
 
@@ -45,7 +44,7 @@ class Control():
 		
 		self.takeoff_land=False
 		self.active=False
-		self.d_time=0.1
+		self.d_time=0.2
 		
 		#self.dron_init()
 
@@ -61,13 +60,13 @@ class Control():
 		if (self.active):
 			self.takeoff_land=not(self.takeoff_land)
 			if (self.takeoff_land):
-				print ("En el aire")
+				print ("flying")
 				self.takeoff()
 			else:
 				self.land()
-				print ("Aterrizando")
+				print ("land...")
 		else:
-			print ("Conectese al drone")
+			print ("connect to drone")
 
 
 	
@@ -88,106 +87,107 @@ class Control():
 	def gaz_su(self,speed):
 		if (self.takeoff_land):
 			self.drone.update( cmd=movePCMDCmd( True, 0, 0, 0 , speed ) )
-			time.sleep(0.5)
-			self.drone.trim()
+			time.sleep(self.d_time)
+			self.drone.hover()
 			
-			print ("subir ")
+			print ("up")
 		else:
-			print ("No ha despegado")
+			print ("No fly")
 
 	def gaz_ba(self,speed):
 		if (self.takeoff_land):
 			self.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, -speed ) )
 			time.sleep(self.d_time)
-			self.drone.trim()
+			self.drone.hover()
 			
 
-			print ("baja")
+			print ("down")
 		else:
-			print ("No ha despegado")
+			print ("No fly")
 
 	def yaw_i(self,speed):
 		if(self.takeoff_land):
 			self.drone.update( cmd=movePCMDCmd( True, 0, 0, -speed , 0 ) )
 			time.sleep(self.d_time)
-			self.drone.trim()
+			self.drone.hover()
 
-			print ("yaw izq")
+			print ("yaw left")
 		else:
-			print ("No ha despegado")
+			print ("No fly")
 
 	def yaw_d(self,speed):
 		if(self.takeoff_land):
 			self.drone.update( cmd=movePCMDCmd( True, 0, 0, speed , 0 ) )
 			time.sleep(self.d_time)
-			self.drone.trim()		
-			print ("yaw der")
+			self.drone.hover()		
+			print ("yaw right")
 		else:
-			print ("No ha despegado")
+			print ("No fly")
 
 	def pitch_i(self,speed):
 		if(self.takeoff_land):
 
 			self.drone.update( cmd=movePCMDCmd( True, 0, speed, 0, 0 ) )
 			time.sleep(self.d_time)
-			self.drone.trim()
+			self.drone.hover()
 
-			print ("pitch izq")
+			print ("pitch left")
 		else:
-			print ("No ha despegado")
+			print ("No fly")
 
 	def pitch_d(self,speed):
 		if(self.takeoff_land):
 
 			self.drone.update( cmd=movePCMDCmd( True, 0, -speed , 0, 0 ) )
 			time.sleep(self.d_time)
-			self.drone.trim()
+			self.drone.hover()
 
-			print ("pitch der")
+			print ("pitch right")
 		else:
 
-			print ("No ha despegado")
+			print ("No fly")
 
 	def roll_i(self,speed):
 		if(self.takeoff_land):
 
 			self.drone.update( cmd=movePCMDCmd( True, speed , 0, 0, 0 ) )
 			time.sleep(self.d_time)
-			self.drone.trim()
+			self.drone.hover()
 
-			print ("roll izq")
+			print ("roll left")
 		else:
-			print ("No ha despegado")
+			print ("No fly")
 
 	def center(self):
 		if(self.takeoff_land):
 			self.drone.update( cmd=movePCMDCmd( True, 0 , 0, 0, 0 ) )
+			#self.drone.hover
 			print ("stop movement")
 		else:
-			print ("No ha despegado")
+			print ("No fly")
 
 	def roll_d(self,speed):
 		if(self.takeoff_land):
 			self.drone.update( cmd=movePCMDCmd( True, -speed , 0, 0, 0 ) )
 			time.sleep(self.d_time)
-			self.drone.trim()
+			self.drone.hover()
 
-			print ("roll der")
+			print ("roll right")
 		else:
-			print ("No ha despegado")
+			print ("No fly")
 
 	def ateb(self):
 		if (self.takeoff_land):
-			print ("aterrizaje controlado")
-			self.drone.flyToAltitude(.5, timeout=20) 
+			print ("Landing....")
+			self.drone.flyToAltitude(.5, timeout=15) 
 			self.drone.land()
 			self.takeoff_land=False
 		else:
-			print ("No esta en el aire")
+			print ("No fly")
 
 	def Lande(self):
 		self.drone.land()
-		print ("aterrizaje de emergencia")
+		print ("Landing....")
 
 	def Emergency(self):
 		print ("STOP EMERGENCY¡¡¡")
@@ -205,12 +205,10 @@ def main():
 	mi_app.dron_init()
 
 
-	print "aa"
 	try:
-		print (mi_app.drone.battery)
+		print ("Level battery ",mi_app.drone.battery)
 	except :
 		pass
-	print "ab"
 
 
 

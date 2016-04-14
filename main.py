@@ -32,7 +32,8 @@ active_drone=False
 
 #
 def mens():
-	tkMessageBox.showinfo(title="Caution",message="Please , make sure that you're connected to \n  Red  wifi (Drone) \n  Bluetooth  connector MYO")
+	pass
+	#tkMessageBox.showinfo(title="Caution",message="Please , make sure that you're connected to \n  Red  wifi (Drone) \n  Bluetooth  connector MYO")
 	
 # Scale speed
 def v_ver_speed(val):
@@ -41,7 +42,7 @@ def v_ver_speed(val):
 	val=int(val)
 	m1=(v_max-v_min)/(20.0)
 	y1=m1*val -m1*5.0+v_min
-	#print ("vertical ",y1)
+
 	return y1
 
 def v_rot_speed(val):
@@ -50,7 +51,7 @@ def v_rot_speed(val):
 	val=int(val)
 	m1=(v_max-v_min)/(190.0)
 	y1=m1*val-m1*10.0+v_min
-	#print ("rota",y1)
+
 	return y1
 
 #Init Myo
@@ -63,7 +64,7 @@ def connect_myo():
 		global App_myo
 		App_myo=Listener()
 		hub.set_locking_policy(libmyo.LockingPolicy.none)
-		hub.run(2, App_myo)
+		hub.run(100, App_myo)
 		
 		active_myo=True
 
@@ -103,24 +104,36 @@ def  proccesInput(app,drone):
 	myoRoll,myoPitch,myoYaw=CalculateRelativeEulerAngles (app.currentOrientation,app.referenceOrientation)
 	myoRoll, myoPitch, myoYaw=RerangeEulerAngles (myoRoll, myoPitch, myoYaw)
 
+	myoRoll=conver_grade(myoRoll)
+	myoPitch=conver_grade(myoPitch)
+	myoYaw=conver_grade(myoYaw)
+
 	# #Condition for fly
 	if (takeoff):
 		if (app.pose==libmyo.Pose.fist ):
-			droneRoll = float(-myoYaw)
-			dronePitch = float(myoPitch)
-			droneYaw = float(-myoRoll)
+			droneRoll = float(-myoPitch)
+			dronePitch = float(myoRoll)
+			droneYaw = float(-myoYaw)
 			drone.drone.update( cmd=movePCMDCmd( True, droneRoll, dronePitch, droneYaw, 0))
 			
-
 		elif (app.pose==libmyo.Pose.fingers_spread):
 			droneGaz = float(myoPitch)
 			drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, droneGaz))
 
-		elif (app.pose==libmyo.Pose.unknown):
+		elif (app.pose==libmyo.Pose.double_tap):
+			drone.drone.takePicture()				
+		elif (app.pose==libmyo.Pose.rest):
 			drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, 0) )
 			
 def batterylevel():
 	level= app_drone.drone.battery
+
+def conver_grade(angle):
+    angle= (angle*180.0)/math.pi
+    return angle
+
+def url_v():
+	webbrowser.open("https://github.com/Cubillosxy/MYO-PYTHON-BEBOP")
 
 
 def main():
@@ -139,9 +152,9 @@ def main():
 
 	##Settings
 	l_setting=Label(f1,text="Settings",anchor="n",padx=2 )
-	v_lineal=Scale(f1, from_=5, to=25, orient=HORIZONTAL,length=200, label= "Max Vertical Speed m/s x 10^-1" ,bg="white", tickinterval=10)
+	v_lineal=Scale(f1, from_=5, to=25, orient=HORIZONTAL,length=200, label= "Vertical Speed m/s x 10^-1" ,bg="white", tickinterval=10)
 	v_lineal.set(1)
-	v_angle=Scale(f1, from_=10, to=200, orient=HORIZONTAL,length=200, label= "Max Rotation Speed °/s " ,bg="white", tickinterval=95)
+	v_angle=Scale(f1, from_=10, to=200, orient=HORIZONTAL,length=200, label= "Rotation Speed °/s " ,bg="white", tickinterval=95)
 	v_angle.set(50)
 
 
@@ -163,7 +176,7 @@ def main():
 
 	x1=800/2-420/2
 
-	im_drone.place(x=20,y=16) 
+	im_drone.place(x=20,y=12) 
 
 	#load images
 	zq1= PhotoImage(file='Bib_ima/cfp1_81x81.gif')
@@ -177,7 +190,7 @@ def main():
 	zq4=PhotoImage(file='Bib_ima/cfp9_81x81.gif')
 
 
-	### Joy control primary
+	### Joystick control primary
 
 	botezq1=Label(raiz,image=zq1, anchor="center",padx=2)
 	bot_ade=Button(raiz,image=ima_ade,command=lambda:app_drone.pitch_i(v_rot_speed(v_angle.get())))
@@ -203,7 +216,7 @@ def main():
 	bot_aba.place(x=x_inicial+81,y=y_inicio+81+63)
 	botezq4.place(x=x_inicial+81+63,y=y_inicio+81+63)
 
-	#load images
+	### Joystick control secundary
 	ima_gder=PhotoImage(file='Bib_ima/cfg1_81x81.gif')
 	ima_gizq=PhotoImage(file='Bib_ima/cfg2_81x81.gif')
 	ima_arr=PhotoImage(file='Bib_ima/cfar_81x81a.gif')
@@ -222,22 +235,21 @@ def main():
 	y2_inicial=y_inicio-9   
 
 
-	bot_gder.place(x=x2_inicial+81+81,y=y2_inicial+81)
-	bot_arr.place(x=x2_inicial+81,y=y2_inicial)
-	bot_gizq.place(x=x2_inicial,y=y2_inicial+81)
-	bot_dow.place(x=x2_inicial+81,y=y2_inicial+81+81)
+	bot_gder.place(x=x2_inicial+81+81+2,y=y2_inicial+81)
+	bot_arr.place(x=x2_inicial+81,y=y2_inicial-2)
+	bot_gizq.place(x=x2_inicial-2,y=y2_inicial+81)
+	bot_dow.place(x=x2_inicial+81,y=y2_inicial+81+81+2)
 
 
-	##Button additionals
+	##Buttons additionals
 	ima_tkld=PhotoImage(file='Bib_ima/taklan_103x32.gif')
 	ima_land2=PhotoImage(file='Bib_ima/L2_81X32.gif')
 	ima_stop=PhotoImage(file='Bib_ima/stop_94x49.gif')
 
 	bot_tak_and =Button(raiz, image= ima_tkld, command=app_drone.take_off_land)  
-	bot_lan_cont=Button(raiz, text="Aterrizaje control", image=ima_land2, command=app_drone.ateb)  
-	bot_stop=Button(raiz, text="Aterrizaje control", image=ima_stop, command=app_drone.Emergency)  
+	bot_lan_cont=Button(raiz, image=ima_land2, command=app_drone.ateb)  
+	bot_stop=Button(raiz, image=ima_stop, command=app_drone.Emergency)  
 
-	
 
 	x3_inicial=x_inicial
 	y3_inicial=y_inicio+20
@@ -246,8 +258,6 @@ def main():
 	bot_lan_cont.place(x=x3_inicial-130+11,y=y3_inicial+65)
 	bot_stop.place(x=x3_inicial-130+4,y=y3_inicial+130)
 
-
-	#Button control
 
 
 	##COPYRIGHT
@@ -265,7 +275,7 @@ def main():
 	mnuHelp=Menu(barraMenu)
 
 	mnuFile.add_command(label='Exit',command=raiz.destroy)
-	mnuHelp.add_command(label='Version')
+	mnuHelp.add_command(label='Version', command= url_v)
 
 
 	barraMenu.add_cascade(label="File",menu=mnuFile)
@@ -287,36 +297,41 @@ def main():
 	bot_con_myo.place(x=x4_inicial,y=y4_inicial+4)
 	bot_con_drone.place(x=x4_inicial+230,y=y4_inicial+4)
 
-	### ##
 
-
+	#optional msm 
 	mens()
 	
 
 	flip=True
 	count=0
+
+
+	#main loop
 	while 1:
 		count +=1
 		try:
+			
 			raiz.update_idletasks()
 			raiz.update()
+			
 			if (active_myo):
 				proccesInput(App_myo,app_drone)
-				pass
+				time.sleep(0.15)
+
+			
 			if (active_drone):
 				batterylevel()
 				if (count ==1000):
 					count=0
 					app_drone.center()
-
-				
-		except:
-			
-			print ("Ex 1")
+		#for any error land and exit	
+		except :
+			print ("exp")
+			app_drone.ateb()
 			exit()
 
 		if (flip==True and active_drone==True):
-			print ("dd", active_drone)
+			print ("already for to fly", active_drone)
 			flip=False
 		
 

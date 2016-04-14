@@ -1,9 +1,8 @@
 MYO+PYTHON+BEBOP
 =======
 
-Parrot drone Bebop
 
-* Program developed for fly drone bebop, it integrate de Myo armband and Bebop drone on python, also you can fly with buttons
+* Program developed for fly drone bebop, it integrate the Myo armband and Bebop drone on python, also you can fly with buttons
 
 For detail info see
 https://github.com/Cubillosxy/MYO-PYTHON-BEBOP
@@ -24,6 +23,7 @@ https://github.com/robotika/katarina/   library for control of bebop
 https://github.com/NiklasRosenstein/myo-python	 library for control of Myo
 
 Actually only you can fly, the video stream is not supported.
+
 Warning! this project uses libraries who still is on developing , then you can experimenter different problems
 I recommend restart the program for any problem, if the issue continue reconnect all the devices.
 
@@ -44,8 +44,10 @@ Thanks to:
 
 
 
-Questions?
+#Questions?
+
 Edwin Cubillos Bohorquez, Colombia : [edwin.cubillos@uptc.edu.co]
+
 
 
 

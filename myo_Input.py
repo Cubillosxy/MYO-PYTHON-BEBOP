@@ -99,13 +99,13 @@ class Listener(libmyo.DeviceListener):
 
     def on_arm_sync(self, myo, timestamp, arm, x_direction, rotation,
                     warmup_state):
-        print("Sincronizad")
+        print("synchronized")
 
     def on_arm_unsync(self, myo, timestamp):
         """
         Called when a Myo armband and an arm is unsynced.
         """
-        print("Sinn Sincronizad")
+        print("please sync ")
 
     def on_battery_level_received(self, myo, timestamp, level):
         """
@@ -134,33 +134,6 @@ def CalculateRelativeAngle(current, reference ):
         return angle + 2*math.pi
         
     return angle;
-
-
-    # diff1 = current - 2 * math.pi - reference
-    # diff2 = current - reference
-    # diff3 = current + 2 * math.pi - reference
-    
-
-        
-
-    # abs1 = abs(diff1) #*1e
-    # abs2 = abs(diff2) #*1e
-    # abs3 = abs(diff3) #*1e
-
-    # min1 = min(abs1, min(abs2, abs3))
-    
-   
-
-    # if (min1 == abs1):
-    #     return diff1
-    # if (min1 == abs3):
-    #     return diff3
-    # else:
-    #     return diff2
-
-
-
-
 
 def CalculateAnglesm(quat):
     """
@@ -260,7 +233,13 @@ def conver_grade(angle):
     return angle
 
 
+
+
 def  proccesOutRobotEdw(app):
+
+    """
+    configure set points
+    """
     myoRoll,myoPitch,myoYaw=CalculateRelativeEulerAngles (app.currentOrientation,app.referenceOrientation)
     
     myoRoll1, myoPitch1, myoYaw1=RerangeEulerAngles (myoRoll, myoPitch, myoYaw)
