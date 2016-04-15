@@ -93,7 +93,6 @@ def connect_drone():
 	print ("myo ",active_myo)
 	print ("Drone", active_drone)
 
-		
 
 def  proccesInput(app,drone):
 	"""
@@ -103,6 +102,8 @@ def  proccesInput(app,drone):
 	takeoff=drone.takeoff_land
 	myoRoll,myoPitch,myoYaw=CalculateRelativeEulerAngles (app.currentOrientation,app.referenceOrientation)
 	myoRoll, myoPitch, myoYaw=RerangeEulerAngles (myoRoll, myoPitch, myoYaw)
+
+	myoRoll, myoPitch, myoYaw=Filter_values(myoRoll, myoPitch, myoYaw)
 
 	myoRoll=conver_grade(myoRoll)
 	myoPitch=conver_grade(myoPitch)
@@ -125,12 +126,18 @@ def  proccesInput(app,drone):
 		elif (app.pose==libmyo.Pose.rest):
 			drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, 0) )
 			
-def batterylevel():
+def batterylevel_drone():
 	level= app_drone.drone.battery
+	global v_level_drone
+	var=str(level)+"%"
+	v_level_drone.set(var)
 
-def conver_grade(angle):
-    angle= (angle*180.0)/math.pi
-    return angle
+def batterylevel_myo():
+	level= App_myo.level_battery
+	global v_level_myo
+	var=str(level)+"%"
+	v_level_myo.set(var)
+
 
 def url_v():
 	webbrowser.open("https://github.com/Cubillosxy/MYO-PYTHON-BEBOP")
@@ -153,7 +160,7 @@ def main():
 	##Settings
 	l_setting=Label(f1,text="Settings",anchor="n",padx=2 )
 	v_lineal=Scale(f1, from_=5, to=25, orient=HORIZONTAL,length=200, label= "Vertical Speed m/s x 10^-1" ,bg="white", tickinterval=10)
-	v_lineal.set(1)
+	v_lineal.set(10)
 	v_angle=Scale(f1, from_=10, to=200, orient=HORIZONTAL,length=200, label= "Rotation Speed °/s " ,bg="white", tickinterval=95)
 	v_angle.set(50)
 
@@ -162,11 +169,38 @@ def main():
 	l_setting.pack(side=TOP)
 	v_angle.pack()
 	v_lineal.pack()
+	x5_inicial=470
+	f1.place(x=x5_inicial,y=5)
 
-	f1.place(x=450,y=5)
+	#Level battery
+	global v_level_myo 
+	v_level_myo = StringVar(value="50%")
+	global v_level_drone
+	v_level_drone=StringVar(value="20%")
+	txtleveldrone= Label(raiz, text="Drone",bg="white")   
+	txtlevelmyo= Label(raiz, text="MYO",bg="white")  
 
+	level_myo=Label(raiz, textvariable=v_level_myo, width=10,bg="white") 
+	level_drone=Label(raiz, textvariable=v_level_drone, width=10,bg="white") 
+
+	##image
+	im_bat=PhotoImage(file="Bib_ima/bat3_57x44.gif")
+	ima_bat=Label(raiz, image=im_bat, anchor="center",padx=2)
+	ima_bat2=Label(raiz, image=im_bat, anchor="center",padx=2)
+
+	##
+	
+	y5_inicial=200
+	txtleveldrone.place(x=x5_inicial,y=y5_inicial-8)
+	txtlevelmyo.place(x=x5_inicial+108,y=y5_inicial-8)
+	ima_bat.place(x=x5_inicial+40,y=y5_inicial-8)
+	ima_bat2.place(x=x5_inicial+102+40,y=y5_inicial-8)
+	level_myo.place(x=x5_inicial-20,y=y5_inicial-8+18)
+	level_drone.place(x=x5_inicial-20+108,y=y5_inicial-8+18)
+
+	#imagen drone
 	raiz.title("MYO+PYTHON+BEBOP")
-	raiz.geometry("680x550+300+70")
+	raiz.geometry("690x550+300+70")
 
 	raiz.configure(background='white')
 
@@ -231,7 +265,7 @@ def main():
 
 
 
-	x2_inicial=x_inicial+225+30
+	x2_inicial=x_inicial+225+40
 	y2_inicial=y_inicio-9   
 
 
@@ -291,7 +325,7 @@ def main():
 	bot_con_myo=Button(raiz,image=ima_con_myo,command=connect_myo)
 	bot_con_drone=Button(raiz,image=ima_con_drone,command=connect_drone)
 
-	y4_inicial=16+145 
+	y4_inicial=16+145+30
 	x4_inicial=32+20
 
 	bot_con_myo.place(x=x4_inicial,y=y4_inicial+4)
@@ -307,35 +341,40 @@ def main():
 
 
 	#main loop
-	while 1:
-		count +=1
-		try:
-			
+	try:
+		while 1:	
+			count +=1
 			raiz.update_idletasks()
 			raiz.update()
 			
 			if (active_myo):
 				proccesInput(App_myo,app_drone)
 				time.sleep(0.15)
+				batterylevel_myo()
 
 			
 			if (active_drone):
-				batterylevel()
+				batterylevel_drone()
 				if (count ==1000):
 					count=0
 					app_drone.center()
-		#for any error land and exit	
-		except :
-			print ("exp")
-			app_drone.ateb()
-			exit()
 
-		if (flip==True and active_drone==True):
-			print ("already for to fly", active_drone)
-			flip=False
+			if (flip==True and active_drone==True):
+				print ("already for to fly", active_drone)
+				flip=False
+
+	#for any error land and exit	
+	except :
+		print ("error")
+
+	finally:
 		
-
-	
+		app_drone.ateb()
+		try:		
+			hub.shutdown()
+		except:
+			print ("Cannot do") 
+		exit()
 
 if (__name__ == '__main__'):
 	main()

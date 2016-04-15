@@ -165,10 +165,11 @@ def RerangeEulerAngle(angle,deadzone,max):
     value = abs(angle)
 
     if (value < deadzone):
-        
         angle = 0
         return angle
-        
+    elif (value>2.0):
+        angle=0
+        return angle
     else:
         
             # current range of value: [deadzone - inifinite]
@@ -176,8 +177,8 @@ def RerangeEulerAngle(angle,deadzone,max):
             #current range of value: [deadzone - max]
         value -= deadzone
             #current range of value: [0 - (max - deadzone)]
-        value /= (max - deadzone)
-            #current range of value: [0 - 1]
+        # value /= (max - deadzone)
+        #     #current range of value: [0 - 1]
 
         #angle = float(sign* pow(value, 3))
         angle = float(sign*value)
@@ -197,17 +198,17 @@ def RerangeEulerAngles(roll,pitch,yaw):
     """
     
     # dead Zona  
-    rollDeadzone = 0.16
-    pitchDeadzone = 0.25
-    yawDeadzone = 0.16
+    rollDeadzone = 0.38
+    pitchDeadzone = 0.30
+    yawDeadzone = 0.30
 
-    rollMax = 0.38              #.35 st
-    pitchMax = 0.38
-    yawMax = 0.38
+    rollMax = 1+ rollDeadzone        #.35 st
+    pitchMax = 1+pitchDeadzone
+    yawMax = 1+yawDeadzone
 
     roll= RerangeEulerAngle(roll,rollDeadzone,rollMax)
     pitch=RerangeEulerAngle(pitch, pitchDeadzone, pitchMax)
-    yaw= RerangeEulerAngle(yaw, yawDeadzone, yawMax)
+    yaw= RerangeEulerAngle(yaw*1.25, yawDeadzone, yawMax)
 
     return (roll,pitch,yaw)
 
@@ -226,14 +227,31 @@ def CalculateRelativeEulerAngles(currentOrientation,referenceOrientation):
     yaw = CalculateRelativeAngle(currentYaw, referenceYaw)
     return roll,pitch,yaw
 
+def Filter_values(val1,val2,val3):
+    if (val1==0 and val2==0 and val3==0):
+        return 0,0,0 
+    sg1,sg2,sg3=math.copysign(1, val1), math.copysign(1, val2),math.copysign(1, val3)
+    val1,val2,val3=abs(val1),abs(val2),abs(val3)
+    if(val1>val2 and val1>val3):
+        val2=0
+        val3=0
+    elif(val2>val3):
+        if(val3!=0):
+            val3/=5
+        if(val1!=0):
+            val1/=5
+    else:
+        if(val1!=0):
+            val1/=5
+        if(val2!=0):
+            val2/=5
+    return sg1*val1,sg2*val2,sg3*val3   
+
 
 def conver_grade(angle):
-    angle= (angle*180.0)/math.pi
+    angle= (angle*100)
 
     return angle
-
-
-
 
 def  proccesOutRobotEdw(app):
 
@@ -243,10 +261,7 @@ def  proccesOutRobotEdw(app):
     myoRoll,myoPitch,myoYaw=CalculateRelativeEulerAngles (app.currentOrientation,app.referenceOrientation)
     
     myoRoll1, myoPitch1, myoYaw1=RerangeEulerAngles (myoRoll, myoPitch, myoYaw)
-
-    currentRoll,currentPitch,currentYaw = CalculateAnglesm (app.currentOrientation)
-    referenceRoll, referencePitch, referenceYaw=CalculateAnglesm (app.referenceOrientation)
-
+    myoRoll1, myoPitch1, myoYaw1=Filter_values(myoRoll1, myoPitch1, myoYaw1)
     if (app.pose==libmyo.Pose.fist):
         print ("sin Rerange")
         print ("roll ", myoRoll,"pitch ", myoPitch,"yaw", myoYaw)
@@ -255,7 +270,7 @@ def  proccesOutRobotEdw(app):
 
     elif (app.pose==libmyo.Pose.fingers_spread):
         print ("con range")
-        print ("roll ",  myoRoll1,"pitch ", myoPitch1,"yaw", myoYaw1)
+        print ("roll ",  myoRoll,"pitch ", myoPitch,"yaw", myoYaw)
         print ("roll ", conver_grade(myoRoll1),"pitch ", conver_grade(myoPitch1),"yaw", conver_grade(myoYaw1))
     elif (app.pose==libmyo.Pose.double_tap):
         pass
