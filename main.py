@@ -192,17 +192,18 @@ def main():
 	level_drone=Label(raiz, textvariable=v_level_drone, width=10,bg="white") 
 
 	##image
-	im_bat=PhotoImage(file="Bib_ima/bat3_57x44.gif")
+	im_bat=PhotoImage(file="Bib_ima/bat1_57x44.gif")
+	im_bat2=PhotoImage(file="Bib_ima/bat_57x44.gif")
 	ima_bat=Label(raiz, image=im_bat, anchor="center",padx=2)
-	ima_bat2=Label(raiz, image=im_bat, anchor="center",padx=2)
+	ima_bat2=Label(raiz, image=im_bat2, anchor="center",padx=2)
 
 	##
 	
 	y5_inicial=200
 	txtleveldrone.place(x=x5_inicial,y=y5_inicial-8)
-	txtlevelmyo.place(x=x5_inicial+108,y=y5_inicial-8)
+	txtlevelmyo.place(x=x5_inicial+106,y=y5_inicial-8)
 	ima_bat.place(x=x5_inicial+40,y=y5_inicial-8)
-	ima_bat2.place(x=x5_inicial+102+40,y=y5_inicial-8)
+	ima_bat2.place(x=x5_inicial+102+43,y=y5_inicial-8)
 	level_myo.place(x=x5_inicial-20,y=y5_inicial-8+18)
 	level_drone.place(x=x5_inicial-20+108,y=y5_inicial-8+18)
 
@@ -212,7 +213,7 @@ def main():
 
 	raiz.configure(background='white')
 
-	im_drone3 =PhotoImage(file="Bib_ima/bebop_420x145.gif")
+	im_drone3 =PhotoImage(file="Bib_ima/bebop_420x145.ppm")
 	im_drone = Label(raiz, image=im_drone3, anchor="center",padx=2)
 
 
@@ -259,10 +260,10 @@ def main():
 	botezq4.place(x=x_inicial+81+63,y=y_inicio+81+63)
 
 	### Joystick control secundary
-	ima_gder=PhotoImage(file='Bib_ima/cfg1_81x81.gif')
-	ima_gizq=PhotoImage(file='Bib_ima/cfg2_81x81.gif')
-	ima_arr=PhotoImage(file='Bib_ima/cfar_81x81a.gif')
-	ima_down=PhotoImage(file='Bib_ima/cfab_81x81.gif')
+	ima_gder=PhotoImage(file='Bib_ima/cfg1_81x81.ppm')
+	ima_gizq=PhotoImage(file='Bib_ima/cfg2_81x81.ppm')
+	ima_arr=PhotoImage(file='Bib_ima/cfar_81x81a.ppm')
+	ima_down=PhotoImage(file='Bib_ima/cfab_81x81.ppm')
 
 
 	
@@ -284,9 +285,9 @@ def main():
 
 
 	##Buttons additionals
-	ima_tkld=PhotoImage(file='Bib_ima/taklan_103x32.gif')
-	ima_land2=PhotoImage(file='Bib_ima/L2_81X32.gif')
-	ima_stop=PhotoImage(file='Bib_ima/stop_94x49.gif')
+	ima_tkld=PhotoImage(file='Bib_ima/taklan_103x32.ppm')
+	ima_land2=PhotoImage(file='Bib_ima/L2_81X32.ppm')
+	ima_stop=PhotoImage(file='Bib_ima/stop_94x49.ppm')
 
 	bot_tak_and =Button(raiz, image= ima_tkld, command=app_drone.take_off_land)  
 	bot_lan_cont=Button(raiz, image=ima_land2, command=app_drone.ateb)  
@@ -327,8 +328,8 @@ def main():
 
 	#### Button connect
 
-	ima_con_myo=PhotoImage(file='Bib_ima/conMyo_103x44.gif')
-	ima_con_drone=PhotoImage(file='Bib_ima/conDrone_103x44.gif')
+	ima_con_myo=PhotoImage(file='Bib_ima/conMyo_103x44.ppm')
+	ima_con_drone=PhotoImage(file='Bib_ima/conDrone_103x44.ppm')
 	
 	bot_con_myo=Button(raiz,image=ima_con_myo,command=connect_myo)
 	bot_con_drone=Button(raiz,image=ima_con_drone,command=connect_drone)
