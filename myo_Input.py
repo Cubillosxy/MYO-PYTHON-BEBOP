@@ -25,7 +25,7 @@ import myo as libmyo; libmyo.init()
 import time
 import sys
 import math
-
+import tkMessageBox
 class Listener(libmyo.DeviceListener):
     """
     Listener implementation. Return False from any function to
@@ -99,13 +99,15 @@ class Listener(libmyo.DeviceListener):
 
     def on_arm_sync(self, myo, timestamp, arm, x_direction, rotation,
                     warmup_state):
-        print("synchronized")
+        pass
+        
 
     def on_arm_unsync(self, myo, timestamp):
         """
         Called when a Myo armband and an arm is unsynced.
         """
-        print("please sync ")
+        pass
+        
 
     def on_battery_level_received(self, myo, timestamp, level):
         """
@@ -177,10 +179,7 @@ def RerangeEulerAngle(angle,deadzone,max):
             #current range of value: [deadzone - max]
         value -= deadzone
             #current range of value: [0 - (max - deadzone)]
-        # value /= (max - deadzone)
-        #     #current range of value: [0 - 1]
 
-        #angle = float(sign* pow(value, 3))
         angle = float(sign*value)
     return angle 
 
@@ -188,8 +187,6 @@ def RerangeEulerAngle(angle,deadzone,max):
 def RerangeEulerAngles(roll,pitch,yaw):
 
     """
-
-       
          Rerange the angles to [-1 - +1]
          If one angle is in the deadzone it is set to 0
          Angles are cubed for better control
@@ -262,22 +259,41 @@ def  proccesOutRobotEdw(app):
     
     myoRoll1, myoPitch1, myoYaw1=RerangeEulerAngles (myoRoll, myoPitch, myoYaw)
     myoRoll1, myoPitch1, myoYaw1=Filter_values(myoRoll1, myoPitch1, myoYaw1)
+
+
     if (app.pose==libmyo.Pose.fist):
         print ("sin Rerange")
         print ("roll ", myoRoll,"pitch ", myoPitch,"yaw", myoYaw)
         print ("roll ", conver_grade(myoRoll),"pitch ", conver_grade(myoPitch),"yaw", conver_grade(myoYaw))
         
-
     elif (app.pose==libmyo.Pose.fingers_spread):
-        print ("con range")
-        print ("roll ",  myoRoll,"pitch ", myoPitch,"yaw", myoYaw)
-        print ("roll ", conver_grade(myoRoll1),"pitch ", conver_grade(myoPitch1),"yaw", conver_grade(myoYaw1))
+        print ("Angulo Radianes")
+        print ("roll: "+  str(myoRoll1),"pitch: "+ str(myoPitch1),"yaw: "+ str(myoYaw1))
+        print ("Valor ajustado")
+        print ("roll: "+ str(conver_grade(myoRoll1)),"pitch: "+ str(conver_grade(myoPitch1)),"yaw: "+ str(conver_grade(myoYaw1)))
     elif (app.pose==libmyo.Pose.double_tap):
-        pass
-        
+        print ("_last pose", _last_pose, "last pose", last_pose, "actual pose", app.pose)
+    elif (app.pose==libmyo.Pose.wave_in and (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap )):
+        print ("double tap + wave in ")
+    elif (app.pose==libmyo.Pose.wave_out and (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap )):
+        print ("double tao + wave out ")
+
+    global last_pose
+    global _last_pose
+    if (last_pose != app.pose ):
+        _last_pose=last_pose
+        last_pose=app.pose
+
+
 
 
 def main():
+
+    global last_pose
+    last_pose=libmyo.Pose.rest
+    global _last_pose
+    _last_pose=libmyo.Pose.rest
+
     print("Connecting to Myo ... Use CTRL^C to exit.")
     try:
         hub = libmyo.Hub()

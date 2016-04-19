@@ -32,6 +32,7 @@ active_drone=False
 
 #
 def mens():
+
 	pass
 	#tkMessageBox.showinfo(title="Caution",message="Please , make sure that you're connected to \n  Red  wifi (Drone) \n  Bluetooth  connector MYO")
 	
@@ -65,15 +66,13 @@ def connect_myo():
 		App_myo=Listener()
 		hub.set_locking_policy(libmyo.LockingPolicy.none)
 		hub.run(100, App_myo)
-		
 		active_myo=True
+		tkMessageBox.showinfo(title="MYO",message="Connection OK")
 
-	except MemoryError:
-		print("Myo Hub could not be created. Make sure Myo Connect is running.")
 	except:
 		
 		active_myo=False
-		tkMessageBox.showinfo(title="Error",message="Myo Hub could not be created. Make sure Myo Connect is running.")
+		tkMessageBox.showerror(title="Error",message="Myo Hub could not be created. Make sure Myo Connect is running.")
 
 #Init Drone
 def connect_drone():
@@ -82,9 +81,9 @@ def connect_drone():
 	try :
 		app_drone.dron_init()
 		active_drone=True
-		
+		tkMessageBox.showinfo(title="Drone",message="Connection OK")
 	except :
-		tkMessageBox.showinfo(title="Error",message="Drone not found. Make sure to connect the red wifi.")
+		tkMessageBox.showerror(title="Error",message="Drone not found. Make sure to connect the red wifi.")
 		time.sleep(2)
 		
 		active_drone=False
@@ -123,17 +122,21 @@ def  proccesInput(app,drone):
 
 		elif (app.pose==libmyo.Pose.double_tap):
 			drone.drone.takePicture()				
-		elif (app.pose==libmyo.Pose.rest):
-			drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, 0) )
+		# elif (app.pose==libmyo.Pose.rest):
+		# 	drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, 0) )
 			
-def batterylevel_drone():
+def batterylevel_drone(cycle):
 	level= app_drone.drone.battery
+	if (level<10 and cycle):
+		tkMessageBox.showwarning(title="Warning",message="Drone \n Low battery...")
 	global v_level_drone
 	var=str(level)+"%"
 	v_level_drone.set(var)
 
-def batterylevel_myo():
+def batterylevel_myo(cycle):
 	level= App_myo.level_battery
+	if (level<5 and cycle):
+		tkMessageBox.showwarning(title="Warning",message="Myo \n Low battery...")
 	global v_level_myo
 	var=str(level)+"%"
 	v_level_myo.set(var)
@@ -151,6 +154,11 @@ def main():
 
 	global app_drone
 	app_drone=Control()
+
+	global last_pose
+	last_pose=libmyo.Pose.rest
+	global _last_pose
+	_last_pose=libmyo.Pose.rest
 
 	##GUI
 	global raiz
@@ -174,11 +182,11 @@ def main():
 
 	#Level battery
 	global v_level_myo 
-	v_level_myo = StringVar(value="50%")
+	v_level_myo = StringVar(value="??")
 	global v_level_drone
-	v_level_drone=StringVar(value="20%")
-	txtleveldrone= Label(raiz, text="Drone",bg="white")   
-	txtlevelmyo= Label(raiz, text="MYO",bg="white")  
+	v_level_drone=StringVar(value="??")
+	txtleveldrone= Label(raiz, text="MYO",bg="white")   
+	txtlevelmyo= Label(raiz, text="Drone",bg="white")  
 
 	level_myo=Label(raiz, textvariable=v_level_myo, width=10,bg="white") 
 	level_drone=Label(raiz, textvariable=v_level_drone, width=10,bg="white") 
@@ -337,8 +345,9 @@ def main():
 	
 
 	flip=True
+	
+	cycle_g=False
 	count=0
-
 
 	#main loop
 	try:
@@ -346,29 +355,30 @@ def main():
 			count +=1
 			raiz.update_idletasks()
 			raiz.update()
-			
+			if (count ==250000):
+				cycle_g=True
+
 			if (active_myo):
 				proccesInput(App_myo,app_drone)
-				time.sleep(0.15)
-				batterylevel_myo()
-
+				#time.sleep(0.15)
+				batterylevel_myo(cycle_g)
 			
 			if (active_drone):
-				batterylevel_drone()
-				if (count ==1000):
-					count=0
-					app_drone.center()
+				batterylevel_drone(cycle_g)
+					
+			# if (flip==True and active_drone==True):
+			# 	print ("already for to fly", active_drone)
+			# 	flip=False
 
-			if (flip==True and active_drone==True):
-				print ("already for to fly", active_drone)
-				flip=False
+			if (count ==250000):
+				count=0
+				cycle_g=False
 
 	#for any error land and exit	
 	except :
 		print ("error")
-
 	finally:
-		
+		#before to out 
 		app_drone.ateb()
 		try:		
 			hub.shutdown()

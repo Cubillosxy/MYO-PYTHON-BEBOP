@@ -63,10 +63,11 @@ class Control():
 				print ("flying")
 				self.takeoff()
 			else:
-				self.land()
+				self.drone.land()
 				print ("land...")
 		else:
-			print ("connect to drone")
+			tkMessageBox.showinfo(title="Alert",message="Please connect to Drone ")
+
 
 
 	
@@ -74,14 +75,6 @@ class Control():
 		self.drone.takeoff()
 		time.sleep(1)
 		print ("NOW FLAYING")
-	
-	# def fly_drone(self,roll,pitch,yaw,gaz):
-	# 	if (self.takeoff_land):
-	# 		self.drone.update( cmd=movePCMDCmd( True, roll, pitch, yaw , gaz ) )
-			
-	# 		print ("Vuela")
-	# 	else:
-	# 		print ("No ha despegado")
 
 
 	def gaz_su(self,speed):
@@ -92,7 +85,7 @@ class Control():
 			
 			print ("up")
 		else:
-			print ("No fly")
+			tkMessageBox.showinfo(title="Alert",message="Takeoff")
 
 	def gaz_ba(self,speed):
 		if (self.takeoff_land):
@@ -103,7 +96,7 @@ class Control():
 
 			print ("down")
 		else:
-			print ("No fly")
+			tkMessageBox.showinfo(title="Alert",message="Takeoff")
 
 	def yaw_i(self,speed):
 		if(self.takeoff_land):
@@ -113,7 +106,7 @@ class Control():
 
 			print ("yaw left")
 		else:
-			print ("No fly")
+			tkMessageBox.showinfo(title="Alert",message="Takeoff")
 
 	def yaw_d(self,speed):
 		if(self.takeoff_land):
@@ -122,7 +115,7 @@ class Control():
 			self.drone.hover()		
 			print ("yaw right")
 		else:
-			print ("No fly")
+			tkMessageBox.showinfo(title="Alert",message="Takeoff")
 
 	def pitch_i(self,speed):
 		if(self.takeoff_land):
@@ -133,7 +126,7 @@ class Control():
 
 			print ("pitch left")
 		else:
-			print ("No fly")
+			tkMessageBox.showinfo(title="Alert",message="Takeoff")
 
 	def pitch_d(self,speed):
 		if(self.takeoff_land):
@@ -145,7 +138,7 @@ class Control():
 			print ("pitch right")
 		else:
 
-			print ("No fly")
+			tkMessageBox.showinfo(title="Alert",message="Takeoff")
 
 	def roll_i(self,speed):
 		if(self.takeoff_land):
@@ -156,7 +149,7 @@ class Control():
 
 			print ("roll left")
 		else:
-			print ("No fly")
+			tkMessageBox.showinfo(title="Alert",message="Takeoff")
 
 	def center(self):
 		if(self.takeoff_land):
@@ -164,7 +157,7 @@ class Control():
 			#self.drone.hover
 			print ("stop movement")
 		else:
-			print ("No fly")
+			tkMessageBox.showinfo(title="Alert",message="Takeoff")
 
 	def roll_d(self,speed):
 		if(self.takeoff_land):
@@ -174,26 +167,29 @@ class Control():
 
 			print ("roll right")
 		else:
-			print ("No fly")
+			tkMessageBox.showinfo(title="Alert",message="Takeoff")
 
 	def ateb(self):
 		if (self.takeoff_land):
 			print ("Landing....")
-			self.drone.flyToAltitude(.5, timeout=15) 
+			self.drone.flyToAltitude(.7, timeout=15) 
+			self.drone.flyToAltitude(.4, timeout=10)
 			self.drone.land()
 			self.takeoff_land=False
 		else:
-			print ("No fly")
+			pass
+			#tkMessageBox.showinfo(title="Alert",message="Takeoff")
 
 	def Lande(self):
 		self.drone.land()
 		print ("Landing....")
 
 	def Emergency(self):
-		print ("STOP EMERGENCY¡¡¡")
+		
 		if (self.takeoff_land):
 			self.drone.emergency()
-			print ("Emergency")
+			tkMessageBox.showinfo(title="Alert",message="Stop Emergency")
+			
 
 
 
