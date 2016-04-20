@@ -276,6 +276,13 @@ def  proccesOutRobotEdw(app):
     elif (app.pose==libmyo.Pose.wave_in and (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap )):
         print ("double tap + wave in ")
     elif (app.pose==libmyo.Pose.wave_out and (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap )):
+        global safe_land
+        if (safe_land):
+            print ("Land safe")
+            safe_land=False
+        else: 
+            safe_land=True
+
         print ("double tao + wave out ")
 
     global last_pose
@@ -293,6 +300,8 @@ def main():
     last_pose=libmyo.Pose.rest
     global _last_pose
     _last_pose=libmyo.Pose.rest
+    global safe_land
+    safe_land=False
 
     print("Connecting to Myo ... Use CTRL^C to exit.")
     try:

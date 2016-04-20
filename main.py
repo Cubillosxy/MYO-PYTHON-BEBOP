@@ -109,21 +109,66 @@ def  proccesInput(app,drone):
 	myoYaw=conver_grade(myoYaw)
 
 	# #Condition for fly
+	
+	global info_myo
+
 	if (takeoff):
 		if (app.pose==libmyo.Pose.fist ):
 			droneRoll = float(-myoPitch)
 			dronePitch = float(myoRoll)
 			droneYaw = float(-myoYaw)
 			drone.drone.update( cmd=movePCMDCmd( True, droneRoll, dronePitch, droneYaw, 0))
-			
+			info_myo.set("Fist")
+
 		elif (app.pose==libmyo.Pose.fingers_spread):
 			droneGaz = float(myoPitch)
 			drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, droneGaz))
+			info_myo.set("Fingers Spread")
 
 		elif (app.pose==libmyo.Pose.double_tap):
-			drone.drone.takePicture()				
-		# elif (app.pose==libmyo.Pose.rest):
-		# 	drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, 0) )
+			drone.drone.takePicture()	
+			info_myo.set("double Tap")
+
+		elif (app.pose==libmyo.Pose.wave_in):
+			info_myo.set("Wave Right")
+			if (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap ):
+
+				global safe_land
+				if(safe_land):
+					print ("Land safe")
+					safe_land=False
+				#drone.ateb()
+				else:
+					safe_land=True
+					print ("double tap + wave in ")
+
+		elif (app.pose==libmyo.Pose.wave_out):
+			info_myo.set("Wave Left")
+		else:
+			info_myo.set("Rest")
+
+	elif (app.pose==libmyo.Pose.wave_out):
+		info_myo.set("Wave Left")
+		if (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap ):
+			drone.take_off_land()
+			print ("Takeoff ")
+	else:
+		if (app.pose==libmyo.Pose.wave_in):
+			info_myo.set("Wave Right")
+		elif (app.pose==libmyo.Pose.fingers_spread):
+			info_myo.set("Fingers Spread")
+		elif (app.pose==libmyo.Pose.fist):
+			info_myo.set("Fist")
+		elif (app.pose==libmyo.Pose.double_tap):
+			info_myo.set("Double Tap")
+		else: 
+			info_myo.set("Rest")
+
+	global last_pose
+	global _last_pose
+	if (last_pose != app.pose ):
+		_last_pose=last_pose
+		last_pose=app.pose
 			
 def batterylevel_drone(cycle):
 	level= app_drone.drone.battery
@@ -137,6 +182,11 @@ def batterylevel_myo(cycle):
 	level= App_myo.level_battery
 	if (level<5 and cycle):
 		tkMessageBox.showwarning(title="Warning",message="Myo \n Low battery...")
+	if (level <0.1):
+		try :
+			hub.shutdown()
+		except:
+			print ("Cannot do")
 	global v_level_myo
 	var=str(level)+"%"
 	v_level_myo.set(var)
@@ -159,6 +209,8 @@ def main():
 	last_pose=libmyo.Pose.rest
 	global _last_pose
 	_last_pose=libmyo.Pose.rest
+	global safe_land
+	safe_land=False
 
 	##GUI
 	global raiz
@@ -334,12 +386,26 @@ def main():
 	bot_con_myo=Button(raiz,image=ima_con_myo,command=connect_myo)
 	bot_con_drone=Button(raiz,image=ima_con_drone,command=connect_drone)
 
-	y4_inicial=16+145+30
+	y4_inicial=16+145+10
 	x4_inicial=32+20
 
 	bot_con_myo.place(x=x4_inicial,y=y4_inicial+4)
 	bot_con_drone.place(x=x4_inicial+230,y=y4_inicial+4)
 
+	###Label for show info
+	global info_myo 
+	info_myo  = StringVar(value="No info")
+	global info_drone
+	info_drone=StringVar(value="No info")
+
+	# txtleveldrone= Label(raiz, text="MYO",bg="white")   
+	# txtlevelmyo= Label(raiz, text="Drone",bg="white")  
+
+	label_info_myo=Label(raiz, textvariable=info_myo , width=50,bg="white") 
+	label_info_drone=Label(raiz, textvariable=info_drone, width=50,bg="white") 
+
+	label_info_myo.place(x=x4_inicial-120,y=y4_inicial+4+55)
+	label_info_drone.place(x=x4_inicial+230-120,y=y4_inicial+4+55)
 
 	#optional msm 
 	mens()
@@ -356,7 +422,7 @@ def main():
 			count +=1
 			raiz.update_idletasks()
 			raiz.update()
-			if (count ==250000):
+			if (count ==210000):
 				cycle_g=True
 
 			if (active_myo):
@@ -371,7 +437,7 @@ def main():
 			# 	print ("already for to fly", active_drone)
 			# 	flip=False
 
-			if (count ==250000):
+			if (count ==210000):
 				count=0
 				cycle_g=False
 
