@@ -45,7 +45,9 @@ class Listener(libmyo.DeviceListener):
         self.last_time = 0
         self.currentOrientation=[0,0,0,0]
         self.referenceOrientation=[0,0,0,0]
-        self.level_battery=0
+        self.level_battery=None  #0
+        self.myo_sync=False
+        self.pair=False
 
 
         ##Data vector
@@ -90,23 +92,27 @@ class Listener(libmyo.DeviceListener):
         """
         Called when a Myo armband is paired.
         """
+        self.pair=True
 
     def on_unpair(self, myo, timestamp):
         """
         Called when a Myo armband is unpaired.
         """
         print("Bye Myo")
+        self.pair=False
 
     def on_arm_sync(self, myo, timestamp, arm, x_direction, rotation,
                     warmup_state):
-        pass
+        self.myo_sync=True
+    
         
 
     def on_arm_unsync(self, myo, timestamp):
         """
         Called when a Myo armband and an arm is unsynced.
         """
-        pass
+        self.myo_sync=False
+        
         
 
     def on_battery_level_received(self, myo, timestamp, level):
@@ -169,9 +175,6 @@ def RerangeEulerAngle(angle,deadzone,max):
     if (value < deadzone):
         angle = 0
         return angle
-    elif (value>2.0):
-        angle=0
-        return angle
     else:
         
             # current range of value: [deadzone - inifinite]
@@ -179,7 +182,8 @@ def RerangeEulerAngle(angle,deadzone,max):
             #current range of value: [deadzone - max]
         value -= deadzone
             #current range of value: [0 - (max - deadzone)]
-
+        value /= (max - deadzone);
+            #current value [0-1]
         angle = float(sign*value)
     return angle 
 
@@ -195,17 +199,20 @@ def RerangeEulerAngles(roll,pitch,yaw):
     """
     
     # dead Zona  
-    rollDeadzone = 0.38
-    pitchDeadzone = 0.30
-    yawDeadzone = 0.30
+    rollDeadzone = 0.25
+    pitchDeadzone = 0.2
+    yawDeadzone = 0.25
 
-    rollMax = 1+ rollDeadzone        #.35 st
-    pitchMax = 1+pitchDeadzone
-    yawMax = 1+yawDeadzone
+    rollMax = 0.6    
+    pitchMax = 0.74
+    yawMax = 0.6
+
+
+
 
     roll= RerangeEulerAngle(roll,rollDeadzone,rollMax)
     pitch=RerangeEulerAngle(pitch, pitchDeadzone, pitchMax)
-    yaw= RerangeEulerAngle(yaw*1.25, yawDeadzone, yawMax)
+    yaw= RerangeEulerAngle(yaw, yawDeadzone, yawMax)
 
     return (roll,pitch,yaw)
 
@@ -222,7 +229,7 @@ def CalculateRelativeEulerAngles(currentOrientation,referenceOrientation):
     roll = CalculateRelativeAngle(currentRoll, referenceRoll)
     pitch = CalculateRelativeAngle(currentPitch, referencePitch)
     yaw = CalculateRelativeAngle(currentYaw, referenceYaw)
-    return roll,pitch,yaw
+    return roll,pitch*0.975,yaw*1.1
 
 def Filter_values(val1,val2,val3):
     if (val1==0 and val2==0 and val3==0):
@@ -234,14 +241,14 @@ def Filter_values(val1,val2,val3):
         val3=0
     elif(val2>val3):
         if(val3!=0):
-            val3/=5
+            val3=0
         if(val1!=0):
-            val1/=5
+            val1=0
     else:
         if(val1!=0):
-            val1/=5
+            val1=0
         if(val2!=0):
-            val2/=5
+            val2=0
     return sg1*val1,sg2*val2,sg3*val3   
 
 
@@ -257,24 +264,26 @@ def  proccesOutRobotEdw(app):
     """
     myoRoll,myoPitch,myoYaw=CalculateRelativeEulerAngles (app.currentOrientation,app.referenceOrientation)
     
-    myoRoll1, myoPitch1, myoYaw1=RerangeEulerAngles (myoRoll, myoPitch, myoYaw)
-    myoRoll1, myoPitch1, myoYaw1=Filter_values(myoRoll1, myoPitch1, myoYaw1)
+    myoRoll_, myoPitch_, myoYaw_=RerangeEulerAngles (myoRoll, myoPitch, myoYaw)
+    myoRoll1, myoPitch1, myoYaw1=Filter_values(myoRoll_, myoPitch_, myoYaw_)
 
 
     if (app.pose==libmyo.Pose.fist):
-        print ("sin Rerange")
-        print ("roll ", myoRoll,"pitch ", myoPitch,"yaw", myoYaw)
-        print ("roll ", conver_grade(myoRoll),"pitch ", conver_grade(myoPitch),"yaw", conver_grade(myoYaw))
-        
+        print ("Angulo relativo")
+        print ("roll ", round(myoRoll,5),"pitch ", round(myoPitch,5),"yaw", round(myoYaw,5))
+
     elif (app.pose==libmyo.Pose.fingers_spread):
-        print ("Angulo Radianes")
-        print ("roll: "+  str(myoRoll1),"pitch: "+ str(myoPitch1),"yaw: "+ str(myoYaw1))
-        print ("Valor ajustado")
-        print ("roll: "+ str(conver_grade(myoRoll1)),"pitch: "+ str(conver_grade(myoPitch1)),"yaw: "+ str(conver_grade(myoYaw1)))
+        print ("Angulo Final")
+        print ("roll: "+  str(round(myoRoll1,5)),"pitch: "+ str(round(myoPitch1,5)),"yaw: "+ str(round(myoYaw1,5)))
+        print ("roll: "+  str(conver_grade(myoRoll1)),"pitch: "+ str(conver_grade(myoPitch1)),"yaw: "+ str(conver_grade(myoYaw1)))
     elif (app.pose==libmyo.Pose.double_tap):
         print ("_last pose", _last_pose, "last pose", last_pose, "actual pose", app.pose)
-    elif (app.pose==libmyo.Pose.wave_in and (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap )):
-        print ("double tap + wave in ")
+        app.vibrate('short')
+    elif (app.pose==libmyo.Pose.wave_in):
+        print ("Angulo rangueado")
+        print ("roll ", round(myoRoll_,5),"pitch ", round(myoPitch_,5),"yaw", round(myoYaw_,5))
+        if (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap ):
+            print ("Wave IN + double_tap")
     elif (app.pose==libmyo.Pose.wave_out and (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap )):
         global safe_land
         if (safe_land):

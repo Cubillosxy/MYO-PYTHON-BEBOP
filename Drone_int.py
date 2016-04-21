@@ -45,6 +45,7 @@ class Control():
 		self.takeoff_land=False
 		self.active=False
 		self.d_time=0.2
+		self.info_drone="No connected"
 		
 		#self.dron_init()
 
@@ -54,31 +55,32 @@ class Control():
 		self.drone=Bebop()
 		self.speed=20
 		self.active=not(self.active)
+		self.info_drone="Ready to fly"
 		
 
 	def take_off_land(self):
 		if (self.active):
 			self.takeoff_land=not(self.takeoff_land)
 			if (self.takeoff_land):
-				print ("flying")
 				self.takeoff()
 			else:
 				self.drone.land()
 				print ("land...")
+				self.info_drone="landing..."
+				time.sleep(5)
 		else:
 			tkMessageBox.showinfo(title="Alert",message="Please connect to Drone ")
 
-
-
-	
 	def takeoff(self):
 		self.drone.takeoff()
-		time.sleep(1)
+		self.info_drone="flying...."
+		time.sleep(2)
 		print ("NOW FLAYING")
 
 
 	def gaz_su(self,speed):
 		if (self.takeoff_land):
+			self.info_drone="Up"
 			self.drone.update( cmd=movePCMDCmd( True, 0, 0, 0 , speed ) )
 			time.sleep(self.d_time)
 			self.drone.hover()
@@ -89,9 +91,12 @@ class Control():
 
 	def gaz_ba(self,speed):
 		if (self.takeoff_land):
-			self.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, -speed ) )
-			time.sleep(self.d_time)
-			self.drone.hover()
+			self.info_drone="Down"
+
+			if (self.drone.altitude>0.45):
+				self.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, -speed ) )
+				time.sleep(self.d_time)
+				self.drone.hover()
 			
 
 			print ("down")
@@ -100,6 +105,7 @@ class Control():
 
 	def yaw_i(self,speed):
 		if(self.takeoff_land):
+			self.info_drone="Turn left"
 			self.drone.update( cmd=movePCMDCmd( True, 0, 0, -speed , 0 ) )
 			time.sleep(self.d_time)
 			self.drone.hover()
@@ -110,6 +116,7 @@ class Control():
 
 	def yaw_d(self,speed):
 		if(self.takeoff_land):
+			self.info_drone="Turn Right"
 			self.drone.update( cmd=movePCMDCmd( True, 0, 0, speed , 0 ) )
 			time.sleep(self.d_time)
 			self.drone.hover()		
@@ -119,7 +126,7 @@ class Control():
 
 	def pitch_i(self,speed):
 		if(self.takeoff_land):
-
+			self.info_drone="Forward"
 			self.drone.update( cmd=movePCMDCmd( True, 0, speed, 0, 0 ) )
 			time.sleep(self.d_time)
 			self.drone.hover()
@@ -130,7 +137,7 @@ class Control():
 
 	def pitch_d(self,speed):
 		if(self.takeoff_land):
-
+			self.info_drone="Back"
 			self.drone.update( cmd=movePCMDCmd( True, 0, -speed , 0, 0 ) )
 			time.sleep(self.d_time)
 			self.drone.hover()
@@ -142,7 +149,7 @@ class Control():
 
 	def roll_i(self,speed):
 		if(self.takeoff_land):
-
+			self.info_drone="Right"
 			self.drone.update( cmd=movePCMDCmd( True, speed , 0, 0, 0 ) )
 			time.sleep(self.d_time)
 			self.drone.hover()
@@ -153,6 +160,7 @@ class Control():
 
 	def center(self):
 		if(self.takeoff_land):
+			self.info_drone="Stop"
 			self.drone.update( cmd=movePCMDCmd( True, 0 , 0, 0, 0 ) )
 			#self.drone.hover
 			print ("stop movement")
@@ -161,6 +169,7 @@ class Control():
 
 	def roll_d(self,speed):
 		if(self.takeoff_land):
+			self.info_drone="Left"
 			self.drone.update( cmd=movePCMDCmd( True, -speed , 0, 0, 0 ) )
 			time.sleep(self.d_time)
 			self.drone.hover()
@@ -172,9 +181,12 @@ class Control():
 	def ateb(self):
 		if (self.takeoff_land):
 			print ("Landing....")
+			self.info_drone="Landing ++"
 			self.drone.flyToAltitude(.7, timeout=15) 
+			time.sleep(0.5)
 			self.drone.flyToAltitude(.4, timeout=10)
 			self.drone.land()
+			time.sleep(3)
 			self.takeoff_land=False
 		else:
 			pass
@@ -188,7 +200,9 @@ class Control():
 		
 		if (self.takeoff_land):
 			self.drone.emergency()
+			self.info_drone="Stop Emergency"
 			tkMessageBox.showinfo(title="Alert",message="Stop Emergency")
+			time.sleep(3)
 			
 
 
@@ -199,14 +213,13 @@ def main():
 	mi_app = Control()
 
 	mi_app.dron_init()
-
-
 	try:
 		print ("Level battery ",mi_app.drone.battery)
-	except :
+		while 1:
+			
+			print ("altitude", mi_app.drone.altitude)
+	except KeyboardInterrupt :
 		pass
-
-
 
  
 if (__name__ == '__main__'):

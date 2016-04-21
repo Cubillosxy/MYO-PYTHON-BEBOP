@@ -66,13 +66,19 @@ def connect_myo():
 		App_myo=Listener()
 		hub.set_locking_policy(libmyo.LockingPolicy.none)
 		hub.run(100, App_myo)
-		active_myo=True
-		tkMessageBox.showinfo(title="MYO",message="Connection OK")
-
+		time.sleep(1.5)
+		if (App_myo.pair):
+			active_myo=True
+			tkMessageBox.showinfo(title="MYO",message="Connection OK")
+		else:
+			active_myo=False
+			tkMessageBox.showerror(title="Error",message="Myo Hub could not be created. Make sure Myo Connect is running.")
+			hub.shutdown()
 	except:
 		
 		active_myo=False
 		tkMessageBox.showerror(title="Error",message="Myo Hub could not be created. Make sure Myo Connect is running.")
+		hub.shutdown()
 
 #Init Drone
 def connect_drone():
@@ -112,17 +118,18 @@ def  proccesInput(app,drone):
 	
 	global info_myo
 
-	if (takeoff):
+	if (takeoff and lock_fly.get()==False):
 		if (app.pose==libmyo.Pose.fist ):
-			droneRoll = float(-myoPitch)
+			droneRoll = float(myoPitch)
 			dronePitch = float(myoRoll)
 			droneYaw = float(-myoYaw)
 			drone.drone.update( cmd=movePCMDCmd( True, droneRoll, dronePitch, droneYaw, 0))
 			info_myo.set("Fist")
 
 		elif (app.pose==libmyo.Pose.fingers_spread):
-			droneGaz = float(myoPitch)
-			drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, droneGaz))
+			droneGaz = float(myoRoll)
+			if (drone.drone.altitude>0.45):
+				drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, droneGaz))
 			info_myo.set("Fingers Spread")
 
 		elif (app.pose==libmyo.Pose.double_tap):
@@ -130,26 +137,26 @@ def  proccesInput(app,drone):
 			info_myo.set("double Tap")
 
 		elif (app.pose==libmyo.Pose.wave_in):
+			global safe_land
+			if(safe_land):
+				print ("Land safe")
+				safe_land=False
+				drone.ateb()
 			info_myo.set("Wave Right")
 			if (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap ):
 
-				global safe_land
-				if(safe_land):
-					print ("Land safe")
-					safe_land=False
-				#drone.ateb()
-				else:
-					safe_land=True
-					print ("double tap + wave in ")
+				safe_land=True
+				print ("double tap + wave in ")
 
 		elif (app.pose==libmyo.Pose.wave_out):
 			info_myo.set("Wave Left")
 		else:
+			drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0,0))
 			info_myo.set("Rest")
 
 	elif (app.pose==libmyo.Pose.wave_out):
 		info_myo.set("Wave Left")
-		if (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap ):
+		if (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap and lock_fly.get()==False):
 			drone.take_off_land()
 			print ("Takeoff ")
 	else:
@@ -158,11 +165,15 @@ def  proccesInput(app,drone):
 		elif (app.pose==libmyo.Pose.fingers_spread):
 			info_myo.set("Fingers Spread")
 		elif (app.pose==libmyo.Pose.fist):
-			info_myo.set("Fist")
+			info_myo.set("Fist ")
 		elif (app.pose==libmyo.Pose.double_tap):
 			info_myo.set("Double Tap")
 		else: 
-			info_myo.set("Rest")
+			info_myo.set("Rest...")
+
+	if (app.myo_sync==False):
+		info_myo.set("Unsynced")
+
 
 	global last_pose
 	global _last_pose
@@ -392,6 +403,13 @@ def main():
 	bot_con_myo.place(x=x4_inicial,y=y4_inicial+4)
 	bot_con_drone.place(x=x4_inicial+230,y=y4_inicial+4)
 
+	#Check button
+	global lock_fly
+	lock_fly = BooleanVar() 
+	idavue = Checkbutton(raiz, text='Lock Myo',variable=lock_fly,onvalue=True, offvalue=False)
+	lock_fly.set(True)
+	idavue.place(x=x4_inicial+130,y=y4_inicial+15)
+
 	###Label for show info
 	global info_myo 
 	info_myo  = StringVar(value="No info")
@@ -405,7 +423,7 @@ def main():
 	label_info_drone=Label(raiz, textvariable=info_drone, width=50,bg="white") 
 
 	label_info_myo.place(x=x4_inicial-120,y=y4_inicial+4+55)
-	label_info_drone.place(x=x4_inicial+230-120,y=y4_inicial+4+55)
+	#label_info_drone.place(x=x4_inicial+230-120,y=y4_inicial+4+55)
 
 	#optional msm 
 	mens()
@@ -422,7 +440,7 @@ def main():
 			count +=1
 			raiz.update_idletasks()
 			raiz.update()
-			if (count ==210000):
+			if (count ==190000):
 				cycle_g=True
 
 			if (active_myo):
@@ -437,13 +455,14 @@ def main():
 			# 	print ("already for to fly", active_drone)
 			# 	flip=False
 
-			if (count ==210000):
+			if (count ==190000):
 				count=0
 				cycle_g=False
 
 	#for any error land and exit	
-	except :
+	except KeyboardInterrupt:
 		print ("error")
+
 	finally:
 		#before to out 
 		app_drone.ateb()

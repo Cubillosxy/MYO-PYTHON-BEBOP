@@ -1,0 +1,5 @@
+['Drone_int.py']
+navdata: logs/navdata_160421_092958.bin
+cmd: logs/cmd_160421_092958.bin
+console: logs/console_160421_092958.txt
+now: datetime.datetime(2016, 4, 21, 9, 29, 58, 817000)
