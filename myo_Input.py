@@ -26,6 +26,13 @@ import time
 import sys
 import math
 import tkMessageBox
+
+
+last_pose=libmyo.Pose.rest
+_last_pose=libmyo.Pose.rest
+safe_land=False
+
+
 class Listener(libmyo.DeviceListener):
     """
     Listener implementation. Return False from any function to
@@ -64,6 +71,7 @@ class Listener(libmyo.DeviceListener):
         myo.vibrate('short')
         myo.request_rssi()
         myo.request_battery_level()
+        self.myo=myo
 
 
     def on_pose(self, myo, timestamp, pose):
@@ -152,7 +160,10 @@ def CalculateAnglesm(quat):
         
     roll = math.atan2(2.0*y*w - 2.0*x*z, 1.0 - 2.0*y*y - 2.0*z*z)
     pitch = math.atan2(2.0*x*w - 2.0*y*z, 1.0 - 2.0*x*x - 2.0*z*z)
-    yaw = math.asin(2.0*x*y + 2.0*z*w)    
+    try:
+        yaw = math.asin(2.0*x*y + 2.0*z*w)    
+    except:
+        yaw =0 
     return roll,pitch,yaw
 
 
@@ -184,7 +195,7 @@ def RerangeEulerAngle(angle,deadzone,max):
             #current range of value: [0 - (max - deadzone)]
         value /= (max - deadzone);
             #current value [0-1]
-        angle = float(sign*value)
+        angle = float(sign*value*value)
     return angle 
 
 
@@ -199,12 +210,12 @@ def RerangeEulerAngles(roll,pitch,yaw):
     """
     
     # dead Zona  
-    rollDeadzone = 0.25
-    pitchDeadzone = 0.2
-    yawDeadzone = 0.25
+    rollDeadzone = 0.20
+    pitchDeadzone = 0.15
+    yawDeadzone = 0.20
 
-    rollMax = 0.6    
-    pitchMax = 0.74
+    rollMax = 0.7    
+    pitchMax = 0.78
     yawMax = 0.6
 
 
@@ -278,21 +289,21 @@ def  proccesOutRobotEdw(app):
         print ("roll: "+  str(conver_grade(myoRoll1)),"pitch: "+ str(conver_grade(myoPitch1)),"yaw: "+ str(conver_grade(myoYaw1)))
     elif (app.pose==libmyo.Pose.double_tap):
         print ("_last pose", _last_pose, "last pose", last_pose, "actual pose", app.pose)
-        app.vibrate('short')
-    elif (app.pose==libmyo.Pose.wave_in):
+        app.myo.vibrate("short")
+    elif (app.pose==libmyo.Pose.wave_out):
         print ("Angulo rangueado")
         print ("roll ", round(myoRoll_,5),"pitch ", round(myoPitch_,5),"yaw", round(myoYaw_,5))
         if (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap ):
             print ("Wave IN + double_tap")
-    elif (app.pose==libmyo.Pose.wave_out and (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap )):
+
+    elif (app.pose==libmyo.Pose.wave_in ):
         global safe_land
         if (safe_land):
             print ("Land safe")
             safe_land=False
-        else: 
+        if(last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap ):
             safe_land=True
-
-        print ("double tao + wave out ")
+            print ("double tao + wave in")
 
     global last_pose
     global _last_pose
@@ -305,22 +316,18 @@ def  proccesOutRobotEdw(app):
 
 def main():
 
-    global last_pose
-    last_pose=libmyo.Pose.rest
-    global _last_pose
-    _last_pose=libmyo.Pose.rest
-    global safe_land
-    safe_land=False
+
 
     print("Connecting to Myo ... Use CTRL^C to exit.")
     try:
+        global hub
         hub = libmyo.Hub()
     except MemoryError:
         print("Myo Hub could not be created. Make sure Myo Connect is running.")
         return
     myApp=Listener()
     hub.set_locking_policy(libmyo.LockingPolicy.none)
-    hub.run(1, myApp)
+    hub.run(1000, myApp)
 
     # Listen to keyboard interrupts and stop the hub in that case.
     try:

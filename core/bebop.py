@@ -243,7 +243,7 @@ class Bebop:
 
     def flyToAltitude( self, altitude, timeout=3.0 ):
         print "Fly to altitude", altitude, "from", self.altitude
-        speed = 80 # 20%
+        speed = 60 # 20%
         assert self.time is not None
         assert self.altitude is not None
         startTime = self.time

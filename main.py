@@ -30,12 +30,22 @@ from myo_Input import *
 active_myo=False 
 active_drone=False
 
+app_drone=Control()
 #
 def mens():
 
 	pass
 	#tkMessageBox.showinfo(title="Caution",message="Please , make sure that you're connected to \n  Red  wifi (Drone) \n  Bluetooth  connector MYO")
-	
+def ateb2():
+	global lock_fly
+	lock_fly.set(True)
+	app_drone.ateb
+
+def Emergency2():
+	global lock_fly
+	lock_fly.set(True)
+	app_drone.Emergency
+
 # Scale speed
 def v_ver_speed(val):
 	v_min=5.0
@@ -65,7 +75,7 @@ def connect_myo():
 		global App_myo
 		App_myo=Listener()
 		hub.set_locking_policy(libmyo.LockingPolicy.none)
-		hub.run(100, App_myo)
+		hub.run(1000, App_myo)
 		time.sleep(1.5)
 		if (App_myo.pair):
 			active_myo=True
@@ -99,7 +109,7 @@ def connect_drone():
 	print ("Drone", active_drone)
 
 
-def  proccesInput(app,drone):
+def  proccesInput(app,drone,cycle_g2):
 	"""
 	Procces Input for the receiver data Myo and send to Drone
 
@@ -115,21 +125,26 @@ def  proccesInput(app,drone):
 	myoYaw=conver_grade(myoYaw)
 
 	# #Condition for fly
-	
+	time_ret=0.08
 	global info_myo
+
 
 	if (takeoff and lock_fly.get()==False):
 		if (app.pose==libmyo.Pose.fist ):
 			droneRoll = float(myoPitch)
-			dronePitch = float(myoRoll)
+			dronePitch = float(-myoRoll)
 			droneYaw = float(-myoYaw)
 			drone.drone.update( cmd=movePCMDCmd( True, droneRoll, dronePitch, droneYaw, 0))
 			info_myo.set("Fist")
+			time.sleep(time_ret)
+			drone.drone.hover()
 
 		elif (app.pose==libmyo.Pose.fingers_spread):
 			droneGaz = float(myoRoll)
 			if (drone.drone.altitude>0.45):
 				drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, droneGaz))
+				time.sleep(time_ret)
+				drone.drone.hover()
 			info_myo.set("Fingers Spread")
 
 		elif (app.pose==libmyo.Pose.double_tap):
@@ -141,6 +156,8 @@ def  proccesInput(app,drone):
 			if(safe_land):
 				print ("Land safe")
 				safe_land=False
+				global lock_fly
+				lock_fly.set(True)
 				drone.ateb()
 			info_myo.set("Wave Right")
 			if (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap ):
@@ -150,9 +167,18 @@ def  proccesInput(app,drone):
 
 		elif (app.pose==libmyo.Pose.wave_out):
 			info_myo.set("Wave Left")
+			droneGaz = float(myoRoll)
+			if (drone.drone.altitude>0.5):
+				drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, droneGaz))
+				time.sleep(time_ret)
+				drone.drone.hover()
 		else:
-			drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0,0))
+			#
 			info_myo.set("Rest")
+			if (cycle_g2):
+				#drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0,0))
+				pass
+				
 
 	elif (app.pose==libmyo.Pose.wave_out):
 		info_myo.set("Wave Left")
@@ -213,8 +239,7 @@ def main():
 	GUI Programan 
 	"""
 
-	global app_drone
-	app_drone=Control()
+
 
 	global last_pose
 	last_pose=libmyo.Pose.rest
@@ -222,7 +247,7 @@ def main():
 	_last_pose=libmyo.Pose.rest
 	global safe_land
 	safe_land=False
-
+	global app_drone
 	##GUI
 	global raiz
 	raiz=Tk()
@@ -432,19 +457,27 @@ def main():
 	flip=True
 	
 	cycle_g=False
+	cycle_g2=False
 	count=0
-
+	count2=0
+	limitc1=150000
+	limitc2=8000
 	#main loop
 	try:
 		while 1:	
 			count +=1
+			count2 +=1
 			raiz.update_idletasks()
 			raiz.update()
-			if (count ==190000):
+			if (count ==limitc1):
 				cycle_g=True
 
+			if (count2==limitc2):
+				cycle_g2=True	
+				
+
 			if (active_myo):
-				proccesInput(App_myo,app_drone)
+				proccesInput(App_myo,app_drone,cycle_g2)
 				#time.sleep(0.15)
 				batterylevel_myo(cycle_g)
 			
@@ -455,9 +488,12 @@ def main():
 			# 	print ("already for to fly", active_drone)
 			# 	flip=False
 
-			if (count ==190000):
+			if (count ==limitc1):
 				count=0
 				cycle_g=False
+			if (count2 ==limitc2):
+				count2=0
+				cycle_g2=False
 
 	#for any error land and exit	
 	except KeyboardInterrupt:
@@ -470,7 +506,7 @@ def main():
 			hub.shutdown()
 		except:
 			print ("Cannot do") 
-		exit()
+		#exit()
 
 if (__name__ == '__main__'):
 	main()

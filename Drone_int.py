@@ -44,7 +44,7 @@ class Control():
 		
 		self.takeoff_land=False
 		self.active=False
-		self.d_time=0.2
+		self.d_time=0.25
 		self.info_drone="No connected"
 		
 		#self.dron_init()
@@ -74,7 +74,7 @@ class Control():
 	def takeoff(self):
 		self.drone.takeoff()
 		self.info_drone="flying...."
-		time.sleep(2)
+		time.sleep(1.5)
 		print ("NOW FLAYING")
 
 
@@ -84,7 +84,6 @@ class Control():
 			self.drone.update( cmd=movePCMDCmd( True, 0, 0, 0 , speed ) )
 			time.sleep(self.d_time)
 			self.drone.hover()
-			
 			print ("up")
 		else:
 			tkMessageBox.showinfo(title="Alert",message="Takeoff")
@@ -182,11 +181,12 @@ class Control():
 		if (self.takeoff_land):
 			print ("Landing....")
 			self.info_drone="Landing ++"
-			self.drone.flyToAltitude(.7, timeout=15) 
-			time.sleep(0.5)
+			if (self.drone.altitude>0.7):
+				self.drone.flyToAltitude(.7, timeout=15) 
+				time.sleep(0.5)
 			self.drone.flyToAltitude(.4, timeout=10)
+			time.sleep(0.3)
 			self.drone.land()
-			time.sleep(3)
 			self.takeoff_land=False
 		else:
 			pass
