@@ -33,7 +33,7 @@ import tkMessageBox
 from Tkinter import *
 import webbrowser
 from core.bebop import *
-
+import tkFont
 
 
 class Control():
@@ -44,7 +44,7 @@ class Control():
 		
 		self.takeoff_land=False
 		self.active=False
-		self.d_time=0.25
+		self.d_time=0.3 #0.25
 		self.info_drone="No connected"
 		
 		#self.dron_init()
@@ -67,14 +67,14 @@ class Control():
 				self.drone.land()
 				print ("land...")
 				self.info_drone="landing..."
-				time.sleep(5)
+				time.sleep(3)
 		else:
 			tkMessageBox.showinfo(title="Alert",message="Please connect to Drone ")
 
 	def takeoff(self):
 		self.drone.takeoff()
 		self.info_drone="flying...."
-		time.sleep(1.5)
+		time.sleep(0.6)
 		print ("NOW FLAYING")
 
 
@@ -181,11 +181,8 @@ class Control():
 		if (self.takeoff_land):
 			print ("Landing....")
 			self.info_drone="Landing ++"
-			if (self.drone.altitude>0.7):
-				self.drone.flyToAltitude(.7, timeout=15) 
-				time.sleep(0.5)
-			self.drone.flyToAltitude(.4, timeout=10)
-			time.sleep(0.3)
+			self.drone.flyToAltitude(.75, timeout=17) 
+			time.sleep(0.7)
 			self.drone.land()
 			self.takeoff_land=False
 		else:

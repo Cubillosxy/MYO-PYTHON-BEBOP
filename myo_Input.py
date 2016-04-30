@@ -71,7 +71,7 @@ class Listener(libmyo.DeviceListener):
         myo.vibrate('short')
         myo.request_rssi()
         myo.request_battery_level()
-        self.myo=myo
+        #self.myo=myo
 
 
     def on_pose(self, myo, timestamp, pose):
@@ -84,6 +84,7 @@ class Listener(libmyo.DeviceListener):
     def on_orientation_data(self, myo, timestamp,quat):
         
         self.currentOrientation=[quat.x, quat.y, quat.z, quat.w]
+        #self.rpy=quat.rpy
        
 
     def on_unlock(self, myo, timestamp):
@@ -167,8 +168,7 @@ def CalculateAnglesm(quat):
     return roll,pitch,yaw
 
 
-
-def RerangeEulerAngle(angle,deadzone,max):
+def RerangeEulerAngle(angle,deadzone,max1):
 
     """
         Rerange the angles to [-1 - +1]
@@ -176,11 +176,16 @@ def RerangeEulerAngle(angle,deadzone,max):
         Angles are cubed for better control
         Deadzone and max is configurable 
 
+            max1 ---/
+                   /:  
+                  / :  
+                 /  :
+       deadzone-/   :
+                :   :
+                0   1   
     """
    
     sign=math.copysign(1, angle)
-
-
     value = abs(angle)
 
     if (value < deadzone):
@@ -189,13 +194,17 @@ def RerangeEulerAngle(angle,deadzone,max):
     else:
         
             # current range of value: [deadzone - inifinite]
-        value = float(min(value, max))
-            #current range of value: [deadzone - max]
+        value = float(min(value, max1))
+            #current range of value: [deadzone - max1]
         value -= deadzone
-            #current range of value: [0 - (max - deadzone)]
-        value /= (max - deadzone);
+            #current range of value: [0 - (max1 - deadzone)]
+        value /= (max1 - deadzone);
             #current value [0-1]
-        angle = float(sign*value*value)
+    
+    # m= max1 - deadzone       # (y2-y1)/(x2-x1)
+    # value=m*value+deadzone   # Y=m(X-x1)+y1
+
+    angle = float(sign*value)
     return angle 
 
 
@@ -210,15 +219,13 @@ def RerangeEulerAngles(roll,pitch,yaw):
     """
     
     # dead Zona  
-    rollDeadzone = 0.20
-    pitchDeadzone = 0.15
-    yawDeadzone = 0.20
+    rollDeadzone = 0.22   #0.1
+    pitchDeadzone = 0.22
+    yawDeadzone = 0.22
 
-    rollMax = 0.7    
-    pitchMax = 0.78
-    yawMax = 0.6
-
-
+    rollMax = 0.65    #0.2
+    pitchMax = 0.8    #.35
+    yawMax = 0.8
 
 
     roll= RerangeEulerAngle(roll,rollDeadzone,rollMax)
@@ -226,7 +233,6 @@ def RerangeEulerAngles(roll,pitch,yaw):
     yaw= RerangeEulerAngle(yaw, yawDeadzone, yawMax)
 
     return (roll,pitch,yaw)
-
 
 def CalculateRelativeEulerAngles(currentOrientation,referenceOrientation):
 
@@ -240,7 +246,7 @@ def CalculateRelativeEulerAngles(currentOrientation,referenceOrientation):
     roll = CalculateRelativeAngle(currentRoll, referenceRoll)
     pitch = CalculateRelativeAngle(currentPitch, referencePitch)
     yaw = CalculateRelativeAngle(currentYaw, referenceYaw)
-    return roll,pitch*0.975,yaw*1.1
+    return roll,pitch,yaw
 
 def Filter_values(val1,val2,val3):
     if (val1==0 and val2==0 and val3==0):
@@ -278,23 +284,28 @@ def  proccesOutRobotEdw(app):
     myoRoll_, myoPitch_, myoYaw_=RerangeEulerAngles (myoRoll, myoPitch, myoYaw)
     myoRoll1, myoPitch1, myoYaw1=Filter_values(myoRoll_, myoPitch_, myoYaw_)
 
+    currentRoll,currentPitch,currentYaw = CalculateAnglesm (app.currentOrientation)
 
     if (app.pose==libmyo.Pose.fist):
-        print ("Angulo relativo")
+        print ("Angulo relativo, rangueado , filtrado") 
         print ("roll ", round(myoRoll,5),"pitch ", round(myoPitch,5),"yaw", round(myoYaw,5))
+        print ("roll ", round(myoRoll_,5),"pitch ", round(myoPitch_,5),"yaw", round(myoYaw_,5))
+        print ("roll ", conver_grade(round(myoRoll1,5)),"pitch ", conver_grade(round(myoPitch1,5)),"yaw", conver_grade(round(myoYaw1,5)))
 
     elif (app.pose==libmyo.Pose.fingers_spread):
         print ("Angulo Final")
         print ("roll: "+  str(round(myoRoll1,5)),"pitch: "+ str(round(myoPitch1,5)),"yaw: "+ str(round(myoYaw1,5)))
         print ("roll: "+  str(conver_grade(myoRoll1)),"pitch: "+ str(conver_grade(myoPitch1)),"yaw: "+ str(conver_grade(myoYaw1)))
     elif (app.pose==libmyo.Pose.double_tap):
-        print ("_last pose", _last_pose, "last pose", last_pose, "actual pose", app.pose)
-        app.myo.vibrate("short")
+        #print ("_last pose", _last_pose, "last pose", last_pose, "actual pose", app.pose)
+        #app.myo.vibrate("short")
+        print ("Roll "+str(currentRoll), "Pitch "+ str(currentPitch), "Yaw " + str(currentYaw))
+        
     elif (app.pose==libmyo.Pose.wave_out):
         print ("Angulo rangueado")
         print ("roll ", round(myoRoll_,5),"pitch ", round(myoPitch_,5),"yaw", round(myoYaw_,5))
-        if (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap ):
-            print ("Wave IN + double_tap")
+        # if (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap ):
+        #     print ("Wave IN + double_tap")
 
     elif (app.pose==libmyo.Pose.wave_in ):
         global safe_land
@@ -312,11 +323,7 @@ def  proccesOutRobotEdw(app):
         last_pose=app.pose
 
 
-
-
 def main():
-
-
 
     print("Connecting to Myo ... Use CTRL^C to exit.")
     try:

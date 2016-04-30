@@ -36,15 +36,7 @@ def mens():
 
 	pass
 	#tkMessageBox.showinfo(title="Caution",message="Please , make sure that you're connected to \n  Red  wifi (Drone) \n  Bluetooth  connector MYO")
-def ateb2():
-	global lock_fly
-	lock_fly.set(True)
-	app_drone.ateb
 
-def Emergency2():
-	global lock_fly
-	lock_fly.set(True)
-	app_drone.Emergency
 
 # Scale speed
 def v_ver_speed(val):
@@ -76,7 +68,7 @@ def connect_myo():
 		App_myo=Listener()
 		hub.set_locking_policy(libmyo.LockingPolicy.none)
 		hub.run(1000, App_myo)
-		time.sleep(1.5)
+		time.sleep(.5)
 		if (App_myo.pair):
 			active_myo=True
 			tkMessageBox.showinfo(title="MYO",message="Connection OK")
@@ -131,7 +123,7 @@ def  proccesInput(app,drone,cycle_g2):
 
 	if (takeoff and lock_fly.get()==False):
 		if (app.pose==libmyo.Pose.fist ):
-			droneRoll = float(myoPitch)
+			droneRoll = float(-myoPitch*1.06)
 			dronePitch = float(-myoRoll)
 			droneYaw = float(-myoYaw)
 			drone.drone.update( cmd=movePCMDCmd( True, droneRoll, dronePitch, droneYaw, 0))
@@ -140,11 +132,11 @@ def  proccesInput(app,drone,cycle_g2):
 			drone.drone.hover()
 
 		elif (app.pose==libmyo.Pose.fingers_spread):
-			droneGaz = float(myoRoll)
-			if (drone.drone.altitude>0.45):
-				drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, droneGaz))
-				time.sleep(time_ret)
-				drone.drone.hover()
+			droneGaz = float(-myoRoll)
+			
+			drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, droneGaz))
+			time.sleep(time_ret)
+			drone.drone.hover()
 			info_myo.set("Fingers Spread")
 
 		elif (app.pose==libmyo.Pose.double_tap):
@@ -256,9 +248,9 @@ def main():
 	##Settings
 	l_setting=Label(f1,text="Settings",anchor="n",padx=2 )
 	v_lineal=Scale(f1, from_=5, to=25, orient=HORIZONTAL,length=200, label= "Vertical Speed m/s x 10^-1" ,bg="white", tickinterval=10)
-	v_lineal.set(10)
+	v_lineal.set(20)
 	v_angle=Scale(f1, from_=10, to=200, orient=HORIZONTAL,length=200, label= "Rotation Speed °/s " ,bg="white", tickinterval=95)
-	v_angle.set(50)
+	v_angle.set(150)
 
 
 	##side
@@ -441,14 +433,13 @@ def main():
 	global info_drone
 	info_drone=StringVar(value="No info")
 
-	# txtleveldrone= Label(raiz, text="MYO",bg="white")   
-	# txtlevelmyo= Label(raiz, text="Drone",bg="white")  
+	ft1=tkFont.Font(family='Helvetica',size=16, weight='bold')
 
-	label_info_myo=Label(raiz, textvariable=info_myo , width=50,bg="white") 
+	label_info_myo=Label(raiz, textvariable=info_myo , width=15,bg="white" , font=ft1) 
 	label_info_drone=Label(raiz, textvariable=info_drone, width=50,bg="white") 
 
-	label_info_myo.place(x=x4_inicial-120,y=y4_inicial+4+55)
-	#label_info_drone.place(x=x4_inicial+230-120,y=y4_inicial+4+55)
+	label_info_myo.place(x=5,y=y4_inicial+4+55)   #x4_inicial
+	#label_info_drone.place(x=x4_inicial+230,y=y4_inicial+4+55)
 
 	#optional msm 
 	mens()
@@ -506,7 +497,8 @@ def main():
 			hub.shutdown()
 		except:
 			print ("Cannot do") 
-		#exit()
+		time.sleep(0.2)
+		exit()
 
 if (__name__ == '__main__'):
 	main()

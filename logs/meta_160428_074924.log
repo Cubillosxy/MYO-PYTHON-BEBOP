@@ -1,0 +1,5 @@
+['C:\\Users\\EDWIN\\Desktop\\PROYECTO GRADO\\Repos Git MYO+DRONE\\MYO-PYTHON-BEBOP\\main.py']
+navdata: logs/navdata_160428_074924.bin
+cmd: logs/cmd_160428_074924.bin
+console: logs/console_160428_074924.txt
+now: datetime.datetime(2016, 4, 28, 7, 49, 24, 47000)
