@@ -108,14 +108,15 @@ def  proccesInput(app,drone,cycle_g2):
 	"""
 	takeoff=drone.takeoff_land
 	myoRoll,myoPitch,myoYaw=CalculateRelativeEulerAngles (app.currentOrientation,app.referenceOrientation)
-	myoRoll, myoPitch, myoYaw=RerangeEulerAngles (myoRoll, myoPitch, myoYaw)
+	myoRoll_, myoPitch_, myoYaw_=RerangeEulerAngles (myoRoll, myoPitch, myoYaw)
 
-	myoRoll, myoPitch, myoYaw=Filter_values(myoRoll, myoPitch, myoYaw)
+	myoRoll, myoPitch, myoYaw=Filter_values(myoRoll_, myoPitch_, myoYaw_)
 
 	myoRoll=conver_grade(myoRoll)
 	myoPitch=conver_grade(myoPitch)
 	myoYaw=conver_grade(myoYaw)
 
+	#print ("R"+str(myoRoll), "P"+str(myoPitch), "Y"+str(myoYaw))
 	# #Condition for fly
 	time_ret=0.08
 	global info_myo
@@ -123,17 +124,18 @@ def  proccesInput(app,drone,cycle_g2):
 
 	if (takeoff and lock_fly.get()==False):
 		if (app.pose==libmyo.Pose.fist ):
-			droneRoll = float(-myoPitch*1.06)
-			dronePitch = float(-myoRoll)
+			droneRoll = float(-myoPitch)
+			dronePitch = float(myoRoll)
 			droneYaw = float(-myoYaw)
+			
 			drone.drone.update( cmd=movePCMDCmd( True, droneRoll, dronePitch, droneYaw, 0))
 			info_myo.set("Fist")
 			time.sleep(time_ret)
 			drone.drone.hover()
 
 		elif (app.pose==libmyo.Pose.fingers_spread):
-			droneGaz = float(-myoRoll)
-			
+			droneGaz = float(myoRoll)
+			print ("R"+str(myoRoll))
 			drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, droneGaz))
 			time.sleep(time_ret)
 			drone.drone.hover()
@@ -161,9 +163,10 @@ def  proccesInput(app,drone,cycle_g2):
 			info_myo.set("Wave Left")
 			droneGaz = float(myoRoll)
 			if (drone.drone.altitude>0.5):
-				drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, droneGaz))
-				time.sleep(time_ret)
-				drone.drone.hover()
+				# drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, droneGaz))
+				# time.sleep(time_ret)
+				# drone.drone.hover()
+				pass
 		else:
 			#
 			info_myo.set("Rest")
@@ -230,9 +233,6 @@ def main():
 	"""
 	GUI Programan 
 	"""
-
-
-
 	global last_pose
 	last_pose=libmyo.Pose.rest
 	global _last_pose

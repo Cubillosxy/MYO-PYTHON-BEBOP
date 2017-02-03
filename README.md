@@ -1,4 +1,4 @@
-MYO+PYTHON+BEBOP
+﻿MYO+PYTHON+BEBOP
 =======
 
 
@@ -6,6 +6,7 @@ MYO+PYTHON+BEBOP
 
 For detail info see
 https://github.com/Cubillosxy/MYO-PYTHON-BEBOP
+![MYO-PYTHON-DRONE](https://github.com/Cubillosxy/MYO-PYTHON-BEBOP/blob/master/Bib_ima/image_s.jpg)
 
 # Notes
 
@@ -19,12 +20,13 @@ Requirements:
 * Myo Connect
 
 that project uses:
+
 https://github.com/robotika/katarina/   library for control of bebop
 https://github.com/NiklasRosenstein/myo-python	 library for control of Myo
 
 Actually only you can fly, the video stream is not supported.
-
-Warning! this project uses libraries who still is on developing , then you can experimenter different problems
+--
+_Warning!_ this project uses libraries who still is on developing , then you can experimenter different problems
 I recommend restart the program for any problem, if the issue continue reconnect all the devices.
 
 The code evolved into next files:
@@ -37,7 +39,7 @@ Known bugs:
 * Wifi drone only support one connection, for avoid problems only connect your PC to Wifi drone
 
 
-Thanks to:
+_Thanks to:_
 * NiklasRosenstein  for myo-python library: [myo-python](https://github.com/NiklasRosenstein/myo-python)
 * Group of robotika.cz for katarina		  : [katarina](https://github.com/robotika/katarina)
 * Aldo Contreras González for contribution: aldocontrego@gmail.com
@@ -47,6 +49,9 @@ Thanks to:
 #Questions?
 
 Edwin Cubillos Bohorquez, Colombia : [edwin.cubillos@uptc.edu.co]
+----
+<p align="center">This project is licensed under the MIT License.</br>
+Copyright  2016 Edwin Cubillos</p>
 
 
 
