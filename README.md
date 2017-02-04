@@ -1,6 +1,6 @@
-﻿<p align="center" > MYO+PYTHON+BEBOP
+﻿<p align="center" > MYO+PYTHON+BEBOP  </p>
 =========
- </p>
+
 
 Program developed for fly drone bebop, it integrate the Myo armband and Bebop drone on python, also you can fly with buttons
 
@@ -24,8 +24,8 @@ Requirements:
 
 That project uses:
 
-[https://github.com/robotika/katarina/]   library for control of bebop
-[https://github.com/NiklasRosenstein/myo-python]	 library for control of Myo
+<p>[https://github.com/robotika/katarina/]   library for control of bebop </p>
+<p>[https://github.com/NiklasRosenstein/myo-python]	 library for control of Myo </p>
 
 
 
@@ -44,7 +44,7 @@ Known bugs:
 * Wifi drone only support one connection, for avoid problems only connect your PC to Wifi drone
 
 
-<h5>_Thanks to:_ </h5>
+<h4>Thanks to: </h4>
 * NiklasRosenstein  for myo-python library: [myo-python](https://github.com/NiklasRosenstein/myo-python)
 * Group of robotika.cz for katarina		  : [katarina](https://github.com/robotika/katarina)
 * Aldo Contreras González for contribution: aldocontrego@gmail.com
