@@ -1,4 +1,4 @@
-﻿<p align="center" >  <h1>MYO+PYTHON+BEBOP </h1> </p>
+﻿MYO+PYTHON+BEBOP 
 =========
 
 
@@ -7,9 +7,9 @@ Program developed for fly drone bebop, it integrate the Myo armband and Bebop dr
 
 For detail info see
 https://github.com/Cubillosxy/MYO-PYTHON-BEBOP
-<p align="center">
-[MYO-PYTHON-DRONE](https://github.com/Cubillosxy/MYO-PYTHON-BEBOP/blob/master/Bib_ima/image_s.jpg)
-</p>
+
+![MYO-PYTHON-DRONE](https://github.com/Cubillosxy/MYO-PYTHON-BEBOP/blob/master/Bib_ima/image_s.jpg)
+
 
 # Notes
 
@@ -27,10 +27,9 @@ That project uses:
 <p>[https://github.com/robotika/katarina/]   library for control of bebop </p>
 <p>[https://github.com/NiklasRosenstein/myo-python]	 library for control of Myo </p>
 
-
+<p> </p>
 
 Actually only you can fly, the video stream is not supported.
-
 _Warning!_ this project uses libraries who still is on developing , then you can experimenter different problems
 I recommend restart the program for any problem, if the issue continue reconnect all the devices.
 
