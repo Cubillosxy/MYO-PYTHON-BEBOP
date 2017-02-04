@@ -1,4 +1,4 @@
-﻿<p align="center" > MYO+PYTHON+BEBOP  </p>
+﻿<p align="center" >  <h1>MYO+PYTHON+BEBOP </h1> </p>
 =========
 
 
@@ -8,7 +8,7 @@ Program developed for fly drone bebop, it integrate the Myo armband and Bebop dr
 For detail info see
 https://github.com/Cubillosxy/MYO-PYTHON-BEBOP
 <p align="center">
-![MYO-PYTHON-DRONE](https://github.com/Cubillosxy/MYO-PYTHON-BEBOP/blob/master/Bib_ima/image_s.jpg)
+[MYO-PYTHON-DRONE](https://github.com/Cubillosxy/MYO-PYTHON-BEBOP/blob/master/Bib_ima/image_s.jpg)
 </p>
 
 # Notes
@@ -36,15 +36,15 @@ I recommend restart the program for any problem, if the issue continue reconnect
 
 The code evolved into next files:
 
-* main.py      this is the main file who import other control files, this file contains the GUI, 
-* Drone_Int.py  here you can find some functions for fly drone.
-* myo_Input.py  this file contains the main functions for send and receiver data for myo, also contain functions for data procesing 
+* _main.py_     this is the main file who import other control files, this file contains the GUI, 
+* _Drone_Int.py_  here you can find some functions for fly drone.
+* _myo_Input.py_  this file contains the main functions for send and receiver data for myo, also contain functions for data procesing 
 
 Known bugs:
 * Wifi drone only support one connection, for avoid problems only connect your PC to Wifi drone
 
 
-<h4>Thanks to: </h4>
+<h3>Thanks to: </h3>
 * NiklasRosenstein  for myo-python library: [myo-python](https://github.com/NiklasRosenstein/myo-python)
 * Group of robotika.cz for katarina		  : [katarina](https://github.com/robotika/katarina)
 * Aldo Contreras González for contribution: aldocontrego@gmail.com
