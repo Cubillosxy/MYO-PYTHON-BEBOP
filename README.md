@@ -13,9 +13,6 @@ https://github.com/Cubillosxy/MYO-PYTHON-BEBOP
 
 # Notes
 
-This  project is *work in progress* and it is your responsibility if you decide to use it without understanding the risks.
-Inspiration and message codes are taken from official Parrot SDK:
-https://github.com/ARDroneSDK3
 
 Requirements:
 * Python 2.X 
@@ -47,6 +44,7 @@ Known bugs:
 * NiklasRosenstein  for myo-python library: [myo-python](https://github.com/NiklasRosenstein/myo-python)
 * Group of robotika.cz for katarina		  : [katarina](https://github.com/robotika/katarina)
 * Aldo Contreras González for contribution: aldocontrego@gmail.com
+* Nicolef Lorena Avella  for contribution: lorenavellam@gmail.com
 
 
 
