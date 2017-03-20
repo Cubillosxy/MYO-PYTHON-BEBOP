@@ -14,7 +14,7 @@ video
 =======
 Fliying Parrot Bebop drone using Myo Armband
 [![ScreenShot](https://i.ytimg.com/vi/o3lv6g7j-yE/sddefault.jpg)](https://www.youtube.com/watch?v=o3lv6g7j-yE)
-
+https://www.youtube.com/watch?v=o3lv6g7j-yE
 # Notes
 
 
