@@ -14,7 +14,7 @@ video
 =======
 Fliying Parrot Bebop drone using Myo Armband
 [![ScreenShot](https://i.ytimg.com/vi/o3lv6g7j-yE/sddefault.jpg)](https://www.youtube.com/watch?v=o3lv6g7j-yE)
-https://www.youtube.com/watch?v=o3lv6g7j-yE
+
 # Notes
 
 
@@ -45,6 +45,7 @@ Known bugs:
 
 
 <h3>Thanks to: </h3>
+
 * NiklasRosenstein  for myo-python library: [myo-python](https://github.com/NiklasRosenstein/myo-python)
 * Group of robotika.cz for katarina		  : [katarina](https://github.com/robotika/katarina)
 * Aldo Contreras González for contribution: aldocontrego@gmail.com
