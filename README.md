@@ -10,7 +10,9 @@ https://github.com/Cubillosxy/MYO-PYTHON-BEBOP
 
 ![MYO-PYTHON-DRONE](https://github.com/Cubillosxy/MYO-PYTHON-BEBOP/blob/master/Bib_ima/image_s.jpg)
 
-
+video
+=======
+![Fliying Parrot Bebop drone using Myo Armband](https://www.youtube.com/watch?v=o3lv6g7j-yE)
 # Notes
 
 

@@ -158,6 +158,9 @@ def CalculateAnglesm(quat):
     """
 
     x, y, z, w = quat[0], quat[1], quat[2], quat[3]
+
+
+    """"""
         
     roll = math.atan2(2.0*y*w - 2.0*x*z, 1.0 - 2.0*y*y - 2.0*z*z)
     pitch = math.atan2(2.0*x*w - 2.0*y*z, 1.0 - 2.0*x*x - 2.0*z*z)
@@ -165,8 +168,17 @@ def CalculateAnglesm(quat):
         yaw = math.asin(2.0*x*y + 2.0*z*w)    
     except:
         yaw =0 
-    return roll,pitch,yaw
+    
+    """
+    #last update from myo library, 
+    
+    roll = math.atan2( 2*w*x + 2*y*z, 1 - 2*x*x - 2*y*y )
+    pitch = math.asin( max( -1, min( 1 , 2*w*y - 2*z*x ) ) )
+    yaw = math.atan2( 2*w*z + 2*x*y, 1 - 2*y*y - 2*z*z )
 
+    """ 
+
+    return roll,pitch,yaw
 
 def RerangeEulerAngle(angle,deadzone,max1):
 

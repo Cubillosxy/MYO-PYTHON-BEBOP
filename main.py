@@ -31,11 +31,6 @@ active_myo=False
 active_drone=False
 
 app_drone=Control()
-#
-def mens():
-
-	pass
-	#tkMessageBox.showinfo(title="Caution",message="Please , make sure that you're connected to \n  Red  wifi (Drone) \n  Bluetooth  connector MYO")
 
 
 # Scale speed
@@ -97,16 +92,18 @@ def connect_drone():
 		active_drone=False
 
 	
-	print ("myo ",active_myo)
-	print ("Drone", active_drone)
+	#print ("myo ",active_myo)
+	#print ("Drone", active_drone)
 
 
+#
 def  proccesInput(app,drone,cycle_g2):
 	"""
 	Procces Input for the receiver data Myo and send to Drone
 
 	"""
-	takeoff=drone.takeoff_land
+	#takeoff=drone.takeoff_land
+	takeoff=True
 	myoRoll,myoPitch,myoYaw=CalculateRelativeEulerAngles (app.currentOrientation,app.referenceOrientation)
 	myoRoll_, myoPitch_, myoYaw_=RerangeEulerAngles (myoRoll, myoPitch, myoYaw)
 
@@ -119,89 +116,117 @@ def  proccesInput(app,drone,cycle_g2):
 	#print ("R"+str(myoRoll), "P"+str(myoPitch), "Y"+str(myoYaw))
 	# #Condition for fly
 	time_ret=0.08
+	#label info
 	global info_myo
+	global show_RPY
+	
 
-
+	#if drone is flying and you have permision for to use myo
 	if (takeoff and lock_fly.get()==False):
+		#if gesture is fist
 		if (app.pose==libmyo.Pose.fist ):
+			#ajust axis
 			droneRoll = float(-myoPitch)
 			dronePitch = float(myoRoll)
 			droneYaw = float(-myoYaw)
-			
-			drone.drone.update( cmd=movePCMDCmd( True, droneRoll, dronePitch, droneYaw, 0))
+			#send commands
+			#drone.drone.update( cmd=movePCMDCmd( True, droneRoll, dronePitch, droneYaw, 0))
+			#show info
 			info_myo.set("Fist")
+			
+			RPY_info="D_roll:%s D_pitch:%s D_yaw:%s"%(str(round(droneRoll,1)),str(round(dronePitch,1)),str(round(droneYaw,1)))	
+			show_RPY.set(RPY_info)		
+			#condition for fly
 			time.sleep(time_ret)
-			drone.drone.hover()
+			#hovering
+			#drone.drone.hover()
 
 		elif (app.pose==libmyo.Pose.fingers_spread):
 			droneGaz = float(myoRoll)
-			print ("R"+str(myoRoll))
-			drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, droneGaz))
+			#print ("R"+str(myoRoll))
+			#drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, droneGaz))
 			time.sleep(time_ret)
-			drone.drone.hover()
+			#drone.drone.hover()
 			info_myo.set("Fingers Spread")
+			RPY_info="D_gaz: %s"%str(round(droneGaz,1))
+			show_RPY.set(RPY_info)			
 
+			#takepicture
 		elif (app.pose==libmyo.Pose.double_tap):
 			drone.drone.takePicture()	
 			info_myo.set("double Tap")
 
+
 		elif (app.pose==libmyo.Pose.wave_in):
 			global safe_land
 			if(safe_land):
-				print ("Land safe")
+				#print ("Land safe")
 				safe_land=False
 				global lock_fly
 				lock_fly.set(True)
 				drone.ateb()
 			info_myo.set("Wave Right")
+			RPY_info="Roll:%s Pitch:%s Yaw:%s"%(str(round(myoRoll,1)),str(round(myoPitch,1)),str(round(myoYaw,1)))
+
+			show_RPY.set(RPY_info)
 			if (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap ):
 
 				safe_land=True
-				print ("double tap + wave in ")
+				#print ("double tap + wave in ")
 
 		elif (app.pose==libmyo.Pose.wave_out):
 			info_myo.set("Wave Left")
 			droneGaz = float(myoRoll)
-			if (drone.drone.altitude>0.5):
-				# drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0, droneGaz))
-				# time.sleep(time_ret)
-				# drone.drone.hover()
-				pass
+			RPY_info="Drone_gaz:%s  "%str(round(droneGaz,1))
+			show_RPY.set(RPY_info)
 		else:
 			#
 			info_myo.set("Rest")
-			if (cycle_g2):
-				#drone.drone.update( cmd=movePCMDCmd( True, 0, 0, 0,0))
-				pass
+			RPY_info="Roll:%s Pitch:%s Yaw:%s"%(str(round(myoRoll,1)),str(round(myoPitch,1)),str(round(myoYaw,1)))
+			show_RPY.set(RPY_info)
 				
 
 	elif (app.pose==libmyo.Pose.wave_out):
 		info_myo.set("Wave Left")
+		RPY_info="Roll:%s Pitch:%s Yaw:%s"%(str(round(myoRoll,1)),str(round(myoPitch,1)),str(round(myoYaw,1)))
+		show_RPY.set(RPY_info)
 		if (last_pose==libmyo.Pose.double_tap or _last_pose==libmyo.Pose.double_tap and lock_fly.get()==False):
 			drone.take_off_land()
 			print ("Takeoff ")
+
+	#if dont have permision for fly only show information
 	else:
 		if (app.pose==libmyo.Pose.wave_in):
 			info_myo.set("Wave Right")
+			RPY_info="Roll:%s Pitch:%s Yaw:%s"%(str(round(myoRoll,1)),str(round(myoPitch,1)),str(round(myoYaw,1)))
+			show_RPY.set(RPY_info)
 		elif (app.pose==libmyo.Pose.fingers_spread):
 			info_myo.set("Fingers Spread")
+			RPY_info="Roll:%s Pitch:%s Yaw:%s"%(str(round(myoRoll,1)),str(round(myoPitch,1)),str(round(myoYaw,1)))
+			show_RPY.set(RPY_info)			
 		elif (app.pose==libmyo.Pose.fist):
 			info_myo.set("Fist ")
+			RPY_info="Roll:%s Pitch:%s Yaw:%s"%(str(round(myoRoll,1)),str(round(myoPitch,1)),str(round(myoYaw,1)))
+			show_RPY.set(RPY_info)			
 		elif (app.pose==libmyo.Pose.double_tap):
 			info_myo.set("Double Tap")
+			RPY_info="Roll:%s Pitch:%s Yaw:%s"%(str(round(myoRoll,1)),str(round(myoPitch,1)),str(round(myoYaw,1)))
+			show_RPY.set(RPY_info)			
 		else: 
 			info_myo.set("Rest...")
+			RPY_info="Roll:-   Pitch:-    Yaw:-  "
+			show_RPY.set(RPY_info)			
 
 	if (app.myo_sync==False):
 		info_myo.set("Unsynced")
 
-
-	global last_pose
+	#memory
+	global last_pose 
 	global _last_pose
 	if (last_pose != app.pose ):
 		_last_pose=last_pose
 		last_pose=app.pose
-			
+#battery drone			
 def batterylevel_drone(cycle):
 	level= app_drone.drone.battery
 	if (level<10 and cycle):
@@ -223,11 +248,16 @@ def batterylevel_myo(cycle):
 	var=str(level)+"%"
 	v_level_myo.set(var)
 
-
+#url for version
 def url_v():
 	webbrowser.open("https://github.com/Cubillosxy/MYO-PYTHON-BEBOP")
+#
+def mens():
 
+	pass
+	#tkMessageBox.showinfo(title="Caution",message="Please , make sure that you're connected to \n  Red  wifi (Drone) \n  Bluetooth  connector MYO")
 
+#main function
 def main():
 
 	"""
@@ -277,7 +307,7 @@ def main():
 	ima_bat=Label(raiz, image=im_bat, anchor="center",padx=2)
 	ima_bat2=Label(raiz, image=im_bat2, anchor="center",padx=2)
 
-	##
+	##place
 	
 	y5_inicial=200
 	txtleveldrone.place(x=x5_inicial,y=y5_inicial-8)
@@ -287,12 +317,11 @@ def main():
 	level_myo.place(x=x5_inicial-20,y=y5_inicial-8+18)
 	level_drone.place(x=x5_inicial-20+108,y=y5_inicial-8+18)
 
-	#imagen drone
+	#configure window
 	raiz.title("MYO+PYTHON+BEBOP")
-	raiz.geometry("690x550+300+70")
-
+	raiz.geometry("690x610+300+70")
 	raiz.configure(background='white')
-
+	#imagen drone
 	im_drone3 =PhotoImage(file="Bib_ima/bebop_420x145.ppm")
 	im_drone = Label(raiz, image=im_drone3, anchor="center",padx=2)
 
@@ -300,6 +329,56 @@ def main():
 	x1=800/2-420/2
 
 	im_drone.place(x=20,y=12) 
+
+	#### Button connect
+
+	ima_con_myo=PhotoImage(file='Bib_ima/conMyo_103x44.ppm')
+	ima_con_drone=PhotoImage(file='Bib_ima/conDrone_103x44.ppm')
+	
+	bot_con_myo=Button(raiz,image=ima_con_myo,command=connect_myo)
+	bot_con_drone=Button(raiz,image=ima_con_drone,command=connect_drone)
+
+	y4_inicial=16+145+10
+	x4_inicial=32+20
+
+	bot_con_myo.place(x=x4_inicial,y=y4_inicial+4)
+	bot_con_drone.place(x=x4_inicial+230,y=y4_inicial+4)
+
+	#Check button
+	global lock_fly
+	lock_fly = BooleanVar() 
+	idavue = Checkbutton(raiz, text='Lock Myo',variable=lock_fly,onvalue=True, offvalue=False)
+	lock_fly.set(True)
+	idavue.place(x=x4_inicial+130,y=y4_inicial+15)
+
+	###Label for show info
+	global info_myo 
+	info_myo  = StringVar(value="No info")
+	global info_drone
+	info_drone=StringVar(value="No info")
+
+
+	global show_RPY
+	show_RPY=StringVar(value="Roll:   Pitch:    Yaw: ")
+ 
+	#static labels
+	txtmyogesture= Label(raiz, text="Gesture",bg="white")   
+	txtmyorpy= Label(raiz, text="Data",bg="white")
+
+	ft1=tkFont.Font(family='Helvetica',size=16, weight='bold')
+
+	label_info_myo=Label(raiz, textvariable=info_myo , width=12,bg="white" , font=ft1) 
+	label_info_drone=Label(raiz, textvariable=info_drone, width=10,bg="white") 
+	label_show_RPY=Label(raiz, textvariable=show_RPY , width=30,bg="white" , font=ft1) 
+
+
+	y_info=4+80+20
+	x_info=5
+	label_info_myo.place(x=x_info+20,y=y4_inicial+y_info)   #x4_inicial
+	#label_info_drone.place(x=x4_inicial+230,y=y4_inicial+4+55)
+	label_show_RPY.place(x=x_info+280,y=y4_inicial+y_info)
+	txtmyogesture.place(x=x_info+74,y=y4_inicial+y_info-20)
+	txtmyorpy.place(x=x_info+220+98+100,y=y4_inicial+y_info-20)
 
 	#load images
 	zq1= PhotoImage(file='Bib_ima/cfp1_81x81.gif')
@@ -326,7 +405,7 @@ def main():
 	botezq4=Label(raiz,image=zq4, anchor="center",padx=2)
 
 	x_inicial=150
-	y_inicio=280
+	y_inicio=280+20+30
 
 	
 	botezq1.place(x=x_inicial,y=y_inicio)
@@ -387,7 +466,7 @@ def main():
 
 	l_copyright=Label(raiz,text="COPYRIGHT (c) EDWIN CUBILLOS 2016",anchor="n",padx=2 ,bg="white")
 	
-	l_copyright.place(x=350-100,y=500-20+50)
+	l_copyright.place(x=350-100,y=580-20+30)
 
 
 	##MENU BAR
@@ -396,52 +475,16 @@ def main():
 	
 	mnuFile=Menu(barraMenu)
 	mnuHelp=Menu(barraMenu)
-
 	mnuFile.add_command(label='Exit',command=raiz.destroy)
 	mnuHelp.add_command(label='Version', command= url_v)
 
-
 	barraMenu.add_cascade(label="File",menu=mnuFile)
 	barraMenu.add_cascade(label="Help",menu=mnuHelp)
-
 	raiz.config(menu=barraMenu)
 
-	#### Button connect
 
-	ima_con_myo=PhotoImage(file='Bib_ima/conMyo_103x44.ppm')
-	ima_con_drone=PhotoImage(file='Bib_ima/conDrone_103x44.ppm')
-	
-	bot_con_myo=Button(raiz,image=ima_con_myo,command=connect_myo)
-	bot_con_drone=Button(raiz,image=ima_con_drone,command=connect_drone)
 
-	y4_inicial=16+145+10
-	x4_inicial=32+20
-
-	bot_con_myo.place(x=x4_inicial,y=y4_inicial+4)
-	bot_con_drone.place(x=x4_inicial+230,y=y4_inicial+4)
-
-	#Check button
-	global lock_fly
-	lock_fly = BooleanVar() 
-	idavue = Checkbutton(raiz, text='Lock Myo',variable=lock_fly,onvalue=True, offvalue=False)
-	lock_fly.set(True)
-	idavue.place(x=x4_inicial+130,y=y4_inicial+15)
-
-	###Label for show info
-	global info_myo 
-	info_myo  = StringVar(value="No info")
-	global info_drone
-	info_drone=StringVar(value="No info")
-
-	ft1=tkFont.Font(family='Helvetica',size=16, weight='bold')
-
-	label_info_myo=Label(raiz, textvariable=info_myo , width=15,bg="white" , font=ft1) 
-	label_info_drone=Label(raiz, textvariable=info_drone, width=50,bg="white") 
-
-	label_info_myo.place(x=5,y=y4_inicial+4+55)   #x4_inicial
-	#label_info_drone.place(x=x4_inicial+230,y=y4_inicial+4+55)
-
-	#optional msm 
+	#optional msm to start
 	mens()
 	
 
@@ -488,7 +531,8 @@ def main():
 
 	#for any error land and exit	
 	except KeyboardInterrupt:
-		print ("error")
+		pass
+		#print ("error")
 
 	finally:
 		#before to out 
@@ -498,6 +542,7 @@ def main():
 		except:
 			print ("Cannot do") 
 		time.sleep(0.2)
+		#print ("saliendo")
 		exit()
 
 if (__name__ == '__main__'):
