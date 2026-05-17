@@ -49,7 +49,6 @@ Known bugs:
 * NiklasRosenstein  for myo-python library: [myo-python](https://github.com/NiklasRosenstein/myo-python)
 * Group of robotika.cz for katarina		  : [katarina](https://github.com/robotika/katarina)
 * Aldo Contreras González for contribution: aldocontrego@gmail.com
-* Nicolef Lorena Avella  for contribution: lorenavellam@gmail.com
 
 
 
